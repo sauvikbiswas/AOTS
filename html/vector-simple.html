@@ -1,0 +1,531 @@
+<html>
+<head>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<link href="stylesheet.css" rel="stylesheet">
+<title>Anatomy of the Snake : 01: Writing a custom mathematical data type</title>
+<script type="text/javascript" async
+  src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/MathJax.js?config=TeX-MML-AM_CHTML" async>
+</script>
+</head>
+<body>
+<a style="text-decoration: none; color: inherit;" href="index.html">
+<div class="super-header">Anatomy of the Snake</div>
+<div class="super-sub-header">A not-so-beginner course in Python
+  <img style="display:inline; padding: 5px 5px 20px 5px;" height="50px" src="python-logo.png"/>
+</div>
+</a>
+<div class="donate-header">
+If you find this useful, please consider <a href="https://paypal.me/sauvikbiswas" target="_blank">donating</a>. More information can be found in the <a href="about.html">about page</a>.
+</div>
+<div class="header">01: Writing a custom mathematical data type</div>
+<div class="content">
+<p>In this chapter, we will look into a simple example. We will write a class to implement vector operations in three-dimensional space. The idea is to get familiar with some of Python's implementation of various functions and operators and define how our own class would behave when interacting with these.</p>
+<h2>Defining a Vector Object</h2>
+<p>A vector in three-dimensional space is an array of length 3. We would want to store this in an object that supports a sequence&mdash;a tuple, or perhaps a list. For this particular implementation, let us choose a list to store our data. Since lists are mutable, the data in the vector can be directly altered if the user chooses to do so.</p>
+<p>A vector is represented as  \( \vec{a} = (r_1,r_2,r_3) \) where \( r_i \in R \). Let us create a constructor that takes three values as input and stores it in a variable called <code>data</code> in the class.</p>
+<div class="file-code"><pre><code>class vector(object):
+
+  def __init__(self, r1, r2, r3):
+    self.data=[float(r1), float(r2), float(r3)]
+    return
+</pre></code></div>
+
+<p>We can now import the class and write some lines to instantiate a few vectors.</p>
+<div class="code-block"><pre><code>>>> a=vector(1,2,3)
+>>> print(a.data)
+[1.0, 2.0, 3.0]
+
+>>> b=vector(2,1,4.6)
+>>> print(b.data)
+[2.0, 1.0, 4.6]
+
+>>> c=vector("f","g","h")
+&lt;Traceback message&gt;
+ValueError: could not convert string to float: 'f'
+</pre></code></div>
+
+<p>This is the expected behaviour of the code. It converts all <code>int</code> values before storing into data but fails to instantiate a <code>vector</code> object when any of the arguments do not have a float representation.</p>
+<h2>Visual representation of an object</h2>
+<p>Notice that in order to print the components of the vector <code>a</code>, we have to print <code>a.data</code>. We would want to have this exact same behaviour when <code>print(a)</code> is invoked. Also, just to differentiate our <code>vector</code> object from a list, we would want to print the word "vector" before the list. This is what we would want to see&mdash;</p>
+<div class="code-block"><pre><code>>>> a=vector(1,2,3)
+>>> print(a)
+vector[1.0, 2.0, 3.0]
+</pre></code></div>
+
+<p>To do so, we will have to define a method called <code>__str__</code> in our class definition. The output would be a string&mdash;the exact string that we would want to see when the <code>print</code> function is called.</p>
+<div class="file-code"><pre><code>  def __str__(self):
+    return 'vector['+str(self.data[0])+', '+str(self.data[1])+', '+str(self.data[2])+']'
+</pre></code></div>
+
+<p>If we re-import the class and print the vector, we'll see exactly what we wanted to see. In fact, we can even call the built-in <code>str</code> function and it in turn calls this method to return a string.</p>
+<div class="code-block"><pre><code>>>> a=vector(1,2,3)
+>>> print(a)
+vector[1.0, 2.0, 3.0]
+
+>>> str(a)
+'vector[1.0, 2.0, 3.0]'
+</pre></code></div>
+
+<p>Python has another representation function called <code>__repr__</code>. This too, is supposed to return a string. The buit-in function <code>repr()</code> in turn calls this function. There is no set rule to what this string should be. However, it is usually the constructor call of the object. Programmers often use that idea so that the object can be re-built using the <code>eval</code> function.</p>
+<p>For our code, we will have to copy the code and replace the square braces of the <code>__str__</code> function with the round ones.</p>
+<div class="file-code"><pre><code>  def __repr__(self):
+    return 'vector('+str(self.data[0])+', '+str(self.data[1])+', '+str(self.data[2])+')'
+</pre></code></div>
+
+<p>We can test it out in our Python shell.</p>
+<div class="code-block"><pre><code>>>> a=vector(1,2,3)
+>>> repr(a)
+'vector(1.0, 2.0, 3.0)'
+
+>>> b=eval(repr(a))
+>>> print(b)
+'vector[1.0, 2.0, 3.0]'
+</pre></code></div>
+
+<p>Check the last three lines. <code>repr(a)</code> returns a string that could be used as a <code>vector</code> constructor in a code. We are doing exactly that. We evaluate the string for executable code using <code>eval()</code> function and then assign the output to <code>b</code>. This is identical to executing <code>b=vector(1.0, 2.0, 3.0)</code>.</p>
+<p>At this point we would want to improve our code. Firstly, we can leverage the fact that <code>vector[1.0, 2.0, 3.0]</code> is nothing but the concatenation of the word 'vector' and the string representation of a list and <code>vector(1.0, 2.0, 3.0)</code> is the concatenation of the word 'vector' and the string representation of a tuple that has same items as a list. Secondly, we would want to know the memory location of the instance when we invoke <code>print</code>. This can be obtained using the built-in function <code>id</code>. <code>id(&lt;object&gt;)</code> returns an integer which is guaranteed to be unique and constant for the object during its lifetime.</p>
+<p>Here is version 2 of our <code>__str__</code> and <code>__repr__</code> functions</p>
+<div class="file-code"><pre><code>  def __str__(self):
+    return 'vector'+str(self.data)+' at '+hex(id(self))
+
+  def __repr__(self):
+    return 'vector'+str(tuple(self.data))
+</pre></code></div>
+
+<p>Here is a Python-shell test for the above functions&mdash;</p>
+<div class="code-block"><pre><code>>>> a=vector(1,2,3)
+>>> print(a)
+vector[1.0, 2.0, 3.0] at 0x7f965898dac8
+
+>>> repr(a)
+'vector(1.0, 2.0, 3.0)'
+
+>>> a
+vector(1.0, 2.0, 3.0)
+</pre></code></div>
+
+<p>See that last test? Python shell uses <code>repr</code> to display an object in its REPL.</p>
+<p>The code can be downloaded from <a href="code/vector_simple_01.py">code/vector_simple_01.py</a>.</p>
+<h2>Vectors as a sequence of three real numbers</h2>
+<p>At its core, the data is a sequence of three real numbers. If we want to retrieve our y-component data, we might do something like this&mdash;</p>
+<div class="code-block"><pre><code>>>> a=vector(1,2,3)
+>>> print(a.data[1])
+2.0
+</pre></code></div>
+
+<p>There is a way to modify this behaviour so that by invoking <code>print(a[1])</code> instead of <code>print(a.data[1])</code>, we get our desired output. In this case we must define what does the phrase "key <code>1</code> in <code>vector</code> object <code>a</code>" mean. The way to implement this behaviour is by defining the <code>__getitem__</code> method.</p>
+<div class="file-code"><pre><code>def __getitem__(self, key):
+    if not isinstance(key,int):
+        raise TypeError('Index must be an integer')
+    if (key>2 or key<0):
+        raise IndexError('Index for a vector can be 0, 1 or 2')
+    return self.data[key]
+</pre></code></div>
+
+<p>Notice that there are two error-catchers. The code checks if the key is an integer&mdash;an instance of the Python data type <code>int</code>&mdash;and raises <code>TypeError</code>. This is the recommended behaviour. The second one is to check if the index makes sense. It should raise an <code>IndexError</code> otherwise. This is also a recommended behaviour so that the sequence object plays nicely with the <code>for</code> keyword. Notice that we have removed interpretation of negative indices&mdash;something that is present in a <code>list</code> object.</p>
+<p>Let us do some testing in our Python shell.</p>
+<div class="code-block"><pre><code>>>> a=vector(1,2,3)
+>>> a[0]
+1.0
+
+>>> a[1]
+2.0
+
+>>> a[2]
+3.0
+
+>>> a[3]
+&lt;Traceback message&gt;
+IndexError: Index for a vector can be 0, 1 or 2
+
+>>> a[-1]
+&lt;Traceback message&gt;
+IndexError: Index for a vector can be 0, 1 or 2
+
+>>> a['f']
+&lt;Traceback message&gt;
+TypeError: Index must be an integer
+</pre></code></div>
+
+<p>Remember the statement about implementation of an <code>IndexError</code> so that the sequence can play nicely with <code>for</code>? We have automatically implemented a sequence that can be used by the <code>for</code> keyword. Since for-loops expect that an <code>IndexError</code> will be raised for illegal indexes to allow proper detection of the end of the sequence, Python knows when the item list gets exhausted. We can test it out in the Python shell.</p>
+<div class="code-block"><pre><code>>>> for x in a:
+&hellip;     print(x)
+&hellip;
+1.0
+2.0
+3.0
+</pre></code></div>
+
+<p><em>Note:</em> Since our <code>data</code> is an instance of <code>list</code>, the implementation of an <code>IndexError</code> for index out-of-bounds is already present. Hence, this may not be the best example to illustrate this point. However, if instead of storing the three values in a list, we used three individual variables, this implementation would become necessary for the <code>for</code> loop to stop.</p>
+<p>We would want a similar method to implement the alteration of a component of a vector. The way to do that is by using the <code>__setitem__</code> method.</p>
+<div class="file-code"><pre><code>def __setitem__(self, key, value):
+    if not isinstance(key, int):
+        raise TypeError('Index must be an integer')
+    if (key>2 or key<0):
+        raise IndexError('Index for a vector can be 0, 1 or 2')
+    self.data[key]=float(value)
+    return
+</pre></code></div>
+
+<p>Notice that we have kept our error checking consistent with the <code>__getitem__</code> method. We can test it out in our Python shell.</p>
+<div class="code-block"><pre><code>>>> a=vector(1,2,3)
+>>> print(a)
+vector[1.0, 2.0, 3.0] at 0x7f3164eb7128
+
+>>> a[2]=5
+>>> print(a)
+vector[1.0, 2.0, 5.0] at 0x7f3164eb7128
+</pre></code></div>
+
+<p>The code with these sequence implementations can be downloaded from <a href="code/vector_simple_02.py">code/vector_simple_02.py</a>.</p>
+<h2>Emulating mathematical operations</h2>
+<p>We know how mathematical operators behave on numbers. If we write <code>2+3</code>, Python will compute that for us and return <code>5</code>. The <code>+</code> operator behaves exactly as we would want it to behave. What about <code>[1, 2, 3]+[4, 5, 6]</code> or <code>'Monty'+' '+'Python'</code>? It is not very obvious what the <code>+</code> operator should mean. What should it do when there is a <code>+</code> sign between two lists or two strings. Testing it out in Python shell shows this&mdash;</p>
+<div class="code-block"><pre><code>>>> [1, 2, 3]+[4, 5, 6]
+[1, 2, 3, 4, 5, 6]
+
+>>> 'monty'+' '+'python'
+'monty python'
+</pre></code></div>
+
+<p>Python interprets the meaning of <code>+</code> to be <em>concatenation</em> in both of these cases. It is not accidental but by design. We would likewise want to define our own interpretation of the <code>+</code> symbol in the context of vectors. We know how addition of vectors work&mdash;the result is a new vector whose components are the summation of the corresponding components of the summands.  If \( \vec{a} = (a_1,a_2,a_3) \) and \( \vec{b} = (b_1,b_2,b_3) \), then for the operation, \( \vec{c} = \vec{a} + \vec{b} \),  \( \vec{c} \) will be equal to  \( (a_1+b_1,a_2+b_2,a_3+b_3) \).</p>
+<p>The way to implement this behaviour is by writing an <code>__add__</code> function&mdash;</p>
+<div class="file-code"><pre><code>  def __add__(self, other):
+      if not isinstance(other, vector):
+          raise TypeError('Cannot add a vector and a non-vector')
+      return vector(self[0]+other[0], self[1]+other[1], self[2]+other[2])
+</pre></code></div>
+
+<p>We have safeguarded our code from adding a vector and a non-vector. Again, let's test it out in the Python shell</p>
+<div class="code-block"><pre><code>>>> a=vector(1,2,3)
+>>> b=vector(4,5,6)
+>>> a+b
+vector(5.0, 7.0, 9.0)
+
+>>> a+9
+&lt;Traceback message&gt;
+TypeError: Cannot add a vector and a non-vector
+</pre></code></div>
+
+<p>What if we flip the order of operands?</p>
+<div class="code-block"><pre><code>>>> 9+a
+&lt;Traceback message&gt;
+TypeError: unsupported operand type(s) for +: 'int' and 'vector'
+</pre></code></div>
+
+<p>Here, the <code>TypeError</code> exception is raised via <code>int</code>'s <code>__add__</code> method rather than the one in our <code>vector</code> implementation. That too, the exception is not directly raised by <code>int</code>. Python's <code>int</code> type and its <code>__add__</code> method has no knowledge of how to deal with <code>vectors</code>. So, it returns a special value called <code>NotImplemented</code>. The <em>interpreter</em> recognises this special value and raises a <code>TypeError</code> exception which kills the execution.</p>
+<p>It is possible to redirect the <code>NotImplemented</code> output of <code>__add__</code> in <code>int</code> by implementing the <code>__radd__</code> method in <code>vector</code>. When Python detects <code>NotImplemented</code> from <code>__add__</code> in <code>int</code>, it checks if a reverse add or <code>__radd__</code> method is present in the right operand's type.</p>
+<div class="file-code"><pre><code>  def __radd__(self, other):
+      if not isinstance(other, vector):
+          raise TypeError('Cannot add a non-vector and a vector')
+</pre></code></div>
+
+<p>Now, if the same request is made in Python shell, we get this&mdash;</p>
+<div class="code-block"><pre><code>>>> 9+a
+&lt;Traceback message&gt;
+TypeError: Cannot add a non-vector and a vector
+</pre></code></div>
+
+<p>The astute reader may observe that by overriding the behaviour of the left-hand operand, it is also possible to force an operation like <code>[1,2,3]+vector(4,5,6)</code> or <code>(1,2,3)+vector(4,5,6)</code>. I leave it up to the reader as an exercise for the brevity of this document.</p>
+<p>It might be worthwhile to explore how we can handle multiplication of vector with a number. For that, we need to implement multiplication. Vectors have a dot product and a cross product. We can use the <code>__mul__</code> method associated with <code>*</code> operator for dot product and <code>__matmul__</code> method associated with the <code>@</code> operator as cross product. (Python 2 doesn't have <code>__matmul__</code>. We have to use a different method like <code>__mod__</code> associated with % to do the same.)</p>
+<div class="file-code"><pre><code>  def __mul__(self, other):
+      if not isinstance(other, vector):
+          try:
+              val=float(other)
+              return vector(self[0]*val, self[1]*val, self[2]*val)
+          except ValueError:
+              raise TypeError('Cannot multiply the vector with the specified type')
+      return self[0]*other[0]+self[1]*other[1]+self[2]*other[2]
+
+  def __matmul__(self, other):
+      if not isinstance(other, vector):
+          raise TypeError('Cross product not defined between a vector and a non-vector')
+      u1, u2, u3 = self.data
+      v1, v2, v3 = other.data
+      return vector((u2*v3 - u3*v2), (u3*v1 - u1*v3), (u1*v2 - u2*v1))
+</pre></code></div>
+
+<p>Note how we treat multiplication of vector with a non-vector. If it is a number or a data type that has float representation, we just scale up the vector. Otherwise, we catch the <code>ValueError</code> that the statement <code>val=float(other)</code> would raise and raise a <code>TypeError</code> instead.</p>
+<p>For the reverse multiplication cases, we can take a bit of shortcut. We can let their forward counterpart do all the work&mdash;including exception handling.</p>
+<div class="file-code"><pre><code>  def __rmul__(self, other):
+      return self*other
+
+  def __rmatmul__(self, other):
+      return self@other
+</pre></code></div>
+
+<p>It is easy to implement similar behaviour for subtraction of two vectors, <code>c=a-b</code> using <code>__sub__</code> method. We can implement a negation using <code>__neg__</code> so that <code>-b</code> can be computed and then implement subtraction as <code>c=a+(-b)</code>.</p>
+<div class="code-block"><pre><code>  def __neg__(self):
+      return vector(-self[0], -self[1], -self[2])
+
+  def __sub__(self, other):
+      return self+(-other)
+</pre></code></div>
+
+<p>As usual, let's test this out in Python shell.</p>
+<div class="code-block"><pre><code>>>> a=vector(1,2,3)
+>>> b=vector(4,5,6)
+>>> -b
+vector(-4.0, -5.0, -6.0)
+
+>>> a-b
+vector(-3.0, -3.0, -3.0)
+</pre></code></div>
+
+<p>There is one last set of operators to tackle before we jump to a summary&mdash;the increment operators or augmented assignments. How do we implement something like <code>a+=b</code>. For most common data types like <code>int</code> or <code>float</code>, it's usually interpreted as <code>a=a+b</code>. We will emulate the same behaviour.</p>
+<div class="file-code"><pre><code>  def __iadd__(self, other):
+      val=self+other
+      self.data=val.data
+      return self
+</pre></code></div>
+
+<p>At this point, we are banking on the already implemented addition and overwriting the <code>data</code> inside itself with the resultant's <code>data</code>. It is not necessary to return <code>self</code> but convention states that it should return a result&mdash;whatever the result may mean.</p>
+<div class="code-block"><pre><code>>>> a=vector(1,2,3)
+>>> b=vector(4,5,6)
+>>> a+=b
+>>> a
+vector(5.0, 7.0, 9.0)
+</pre></code></div>
+
+<p>The code with these numerical operator implementations can be downloaded from <a href="code/vector_simple_03.py">code/vector_simple_03.py</a>.</p>
+<p>At this point, instead of an explanation of the code, let us look at a summary of operators and their corresponding increment operators.</p>
+<table>
+<thead>
+<tr>
+<th align="center">Operator</th>
+<th>Method</th>
+<th>Reverse Method</th>
+<th align="center">Incr. Operator</th>
+<th>Incr. Op. Method</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td align="center"><code>+</code></td>
+<td><code>__add__</code></td>
+<td><code>__radd__</code></td>
+<td align="center"><code>+=</code></td>
+<td><code>__iadd__</code></td>
+</tr>
+<tr>
+<td align="center"><code>-</code></td>
+<td><code>__sub__</code></td>
+<td><code>__rsub__</code></td>
+<td align="center"><code>-=</code></td>
+<td><code>__isub__</code></td>
+</tr>
+<tr>
+<td align="center"><code>*</code></td>
+<td><code>__mul__</code></td>
+<td><code>__rmul__</code></td>
+<td align="center"><code>*=</code></td>
+<td><code>__imul__</code></td>
+</tr>
+<tr>
+<td align="center"><code>@</code></td>
+<td><code>__matmul__</code></td>
+<td><code>__rmatmul__</code></td>
+<td align="center"><code>@=</code></td>
+<td><code>__imatmul__</code></td>
+</tr>
+<tr>
+<td align="center"><code>/</code></td>
+<td><code>__truediv__</code></td>
+<td><code>__rtruediv__</code></td>
+<td align="center"><code>/=</code></td>
+<td><code>__itruediv__</code></td>
+</tr>
+<tr>
+<td align="center"><code>//</code></td>
+<td><code>__floordiv__</code></td>
+<td><code>__rfloordiv__</code></td>
+<td align="center"><code>//=</code></td>
+<td><code>__ifloordiv__</code></td>
+</tr>
+<tr>
+<td align="center"><code>%</code></td>
+<td><code>__mod__</code></td>
+<td><code>__rmod__</code></td>
+<td align="center"><code>%=</code></td>
+<td><code>__imod__</code></td>
+</tr>
+<tr>
+<td align="center"><code>divmod()</code></td>
+<td><code>__divmod__</code></td>
+<td><code>__rdivmod__</code></td>
+<td align="center">n.a.</td>
+<td>n.a.</td>
+</tr>
+<tr>
+<td align="center"><code>pow()</code> or <code>**</code></td>
+<td><code>__pow__</code></td>
+<td><code>__rpow__</code></td>
+<td align="center"><code>**=</code></td>
+<td><code>__ipow__</code></td>
+</tr>
+<tr>
+<td align="center"><code>&lt;&lt;</code></td>
+<td><code>__lshift__</code></td>
+<td><code>__rlshift__</code></td>
+<td align="center"><code>&lt;&lt;=</code></td>
+<td><code>__ilshift__</code></td>
+</tr>
+<tr>
+<td align="center"><code>&gt;&gt;</code></td>
+<td><code>__rshift__</code></td>
+<td><code>__rrshift__</code></td>
+<td align="center"><code>&gt;&gt;=</code></td>
+<td><code>__ilshift__</code></td>
+</tr>
+<tr>
+<td align="center"><code>&amp;</code></td>
+<td><code>__and__</code></td>
+<td><code>__rand__</code></td>
+<td align="center"><code>&amp;=</code></td>
+<td><code>__iadd__</code></td>
+</tr>
+<tr>
+<td align="center"><code>^</code></td>
+<td><code>__xor__</code></td>
+<td><code>__rxor__</code></td>
+<td align="center"><code>^=</code></td>
+<td><code>__ixor__</code></td>
+</tr>
+<tr>
+<td align="center"><code>|</code></td>
+<td><code>__or__</code></td>
+<td><code>__ror__</code></td>
+<td align="center"><code>|=</code></td>
+<td><code>__ior__</code></td>
+</tr>
+</tbody>
+</table>
+<p>And here is a table of the unary operators.</p>
+<table>
+<thead>
+<tr>
+<th align="center">Operator</th>
+<th>Method</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td align="center"><code>-</code></td>
+<td><code>__neg__</code></td>
+</tr>
+<tr>
+<td align="center"><code>+</code></td>
+<td><code>__pos__</code></td>
+</tr>
+<tr>
+<td align="center"><code>abs()</code></td>
+<td><code>__abs__</code></td>
+</tr>
+<tr>
+<td align="center"><code>~</code></td>
+<td><code>__invert__</code></td>
+</tr>
+<tr>
+<td align="center"><code>complex()</code></td>
+<td><code>__complex__</code></td>
+</tr>
+<tr>
+<td align="center"><code>int()</code></td>
+<td><code>__int__</code></td>
+</tr>
+<tr>
+<td align="center"><code>float()</code></td>
+<td><code>__float__</code></td>
+</tr>
+<tr>
+<td align="center"><code>round()</code></td>
+<td><code>__round__</code></td>
+</tr>
+<tr>
+<td align="center"><code>trunc()</code></td>
+<td><code>__trunc__</code></td>
+</tr>
+<tr>
+<td align="center"><code>floor()</code></td>
+<td><code>__floor__</code></td>
+</tr>
+<tr>
+<td align="center"><code>ceil()</code></td>
+<td><code>__ceil__</code></td>
+</tr>
+<tr>
+<td align="center"><em>see note</em></td>
+<td><code>__index__</code></td>
+</tr>
+</tbody>
+</table>
+<p><em>Note:</em> <code>__index__</code> is called to convert the data to an integer object. This is used for slicing and for the built-in <code>bin()</code>, <code>hex()</code> and <code>oct()</code> functions.</p>
+<p>The code with all numerical operator implementations can be downloaded from <a href="code/vector_simple_04.py">code/vector_simple_04.py</a>. For most of the cases, we have set the return value to <code>NotImplemented</code>. This will ensure that a different data type (may not be the built-in ones) can implement their own procedures when interacting with our <code>vector</code> objects. The <code>__abs__</code> method has been implemented and it returns the magnitude of a vector when <code>abs()</code> is called. Also, the <code>__float__</code> method&mdash;invoked when <code>float()</code> is called&mdash;redirects to <code>abs()</code>.</p>
+<h2>Implementing rich comparison methods</h2>
+<p>One of the final things we will touch upon in this chapter are the rich comparison methods. In other words, how we can implement the logical operators like <code>==</code>, <code>!=</code>, <code>&lt;</code>, <code>&lt;=</code>, <code>&gt;</code> and <code>&gt;=</code>.</p>
+<p>We will start with equality and inequality. In this case, two vectors are equal when their components are equal</p>
+<div class="file-code"><pre><code>  def __eq__(self, other):
+      return self[0]==other[0] and self[1]==other[1] and self[2]==other[2]
+
+  def __ne__(self, other):
+      return not self==other`
+</pre></code></div>
+
+<p>As usual, let's test it out in Python shell.</p>
+<div class="code-block"><pre><code>>>> a=vector(1,2,3)
+>>> b=vector(1,2,3)
+>>> a==b
+True
+
+>>> a!=b
+False
+
+>>> c=vector(4,5,6)
+>>> a!=c
+True
+>>>
+</pre></code></div>
+
+<p>For the other four operators, we could just compare the magnitude&mdash;something we have already implemented using the <code>__abs__</code> method. Here are the <code>&lt;=</code>, <code>&gt;</code>, <code>&gt;=</code>, and <code>&lt;</code> implementations respectively.</p>
+<div class="file-code"><pre><code>  def __le__(self, other):
+      return abs(self)<=abs(other)
+
+  def __gt__(self, other):
+      return not self<=other
+
+  def __ge__(self, other):
+      return abs(self)>=abs(other)
+
+  def __lt__(self, other):
+      return not self>=other
+</pre></code></div>
+
+<p>I leave it up to the reader to test the behaviour. The code with all implementations (and non-implementations) can be downloaded from <a href="code/vector_simple_05.py">code/vector_simple_05.py</a>.</p>
+<h2>Assignment by memory</h2>
+<p>There is one last thing to touch upon before wrapping this chapter up. Let us run a test case. In our Python shell, we can import our <code>vector</code> class and run the following</p>
+<div class="code-block"><pre><code>>>> a=vector(0.5,0.5,0.5)
+>>> b=a
+>>> b+=a
+>>> b
+vector(1.0, 1.0, 1.0)
+>>> a
+vector(1.0, 1.0, 1.0)
+</pre></code></div>
+
+<p>This is not an intended outcome. We haven't asked Python to alter the values of <code>a</code>. Something must have happened. This is where our <code>__str__</code> method will help us.</p>
+<div class="code-block"><pre><code>>>> print(a)
+vector[1.0, 1.0, 1.0] at 0x7f94870ed160
+>>> print(b)
+vector[1.0, 1.0, 1.0] at 0x7f94870ed160
+</pre></code></div>
+
+<p>We can clearly see that both the variables <code>a</code> and <code>b</code> point to the same object. The <code>id</code> value points to the same memory location. In truth, this behaviour is not unique to our <code>vector</code>. Whenever a statement like <code>b=a</code> is executed, Python merely points <code>b</code> to the same object at the same memory location as <code>a</code> was pointing. Thus a procedure to change the contents of <code>b</code> gets reflected in <code>a</code> an vice versa. The reader can test this out using numbers, lists, etc.</p>
+</div>
+<div class="donate-footer">
+If you found this useful, please consider <a href="https://paypal.me/sauvikbiswas" target="_blank">donating</a>. More information can be found in the <a href="about.html">about page</a>.
+</div>
+<div class="copyright">
+  &copy;2019, <a href="https://sauvikbiswas.com" target="_blank">Sauvik Biswas</a>. All rights reserved. Last updated: 2019-06-12
+</div>
+<p><a href="index.html">Table of contents</a></p>
+</body>
+</html>

@@ -1,0 +1,53 @@
+<html>
+<head>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<link href="stylesheet.css" rel="stylesheet">
+<title>Anatomy of the Snake : 00: How the code blocks have been laid out</title>
+<script type="text/javascript" async
+  src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/MathJax.js?config=TeX-MML-AM_CHTML" async>
+</script>
+</head>
+<body>
+<a style="text-decoration: none; color: inherit;" href="index.html">
+<div class="super-header">Anatomy of the Snake</div>
+<div class="super-sub-header">A not-so-beginner course in Python
+  <img style="display:inline; padding: 5px 5px 20px 5px;" height="50px" src="python-logo.png"/>
+</div>
+</a>
+<div class="donate-header">
+If you find this useful, please consider <a href="https://paypal.me/sauvikbiswas" target="_blank">donating</a>. More information can be found in the <a href="about.html">about page</a>.
+</div>
+<div class="header">00: How the code blocks have been laid out</div>
+<div class="content">
+<p>This is a code in a file&mdash;</p>
+<div class="file-code"><pre><code>class vector(object):
+
+  def __init__(self, r1, r2, r3):
+    self.data=[float(r1), float(r2), float(r3)]
+    return
+</pre></code></div>
+
+<p>Let's say that the file is saved as <code>vector_functions.py</code>.</p>
+<p>This is a code that must be executed in Python shell&mdash;</p>
+<div class="code-block"><pre><code>>>> a=vector(1,2,3)
+>>> print(a.data)
+[1.0, 2.0, 3.0]
+</pre></code></div>
+
+<p>The lines that must be manually typed is prefixed by the Python REPL prompt&mdash;<code>&gt;&gt;&gt;</code>. The ones without are the outputs.</p>
+<p>What is not explicitly mentioned is that the reader will have to import the code before executing the instructions.</p>
+<div class="code-block"><pre><code>>>> from vector_functions import vector
+>>> a=vector(1,2,3)
+>>> print(a.data)
+[1.0, 2.0, 3.0]
+</pre></code></div>
+</div>
+<div class="donate-footer">
+If you found this useful, please consider <a href="https://paypal.me/sauvikbiswas" target="_blank">donating</a>. More information can be found in the <a href="about.html">about page</a>.
+</div>
+<div class="copyright">
+  &copy;2019, <a href="https://sauvikbiswas.com" target="_blank">Sauvik Biswas</a>. All rights reserved. Last updated: 2019-06-12
+</div>
+<p><a href="index.html">Table of contents</a></p>
+</body>
+</html>

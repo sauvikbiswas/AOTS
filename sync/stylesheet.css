@@ -1,0 +1,112 @@
+@import url('https://fonts.googleapis.com/css?family=EB+Garamond|Forum|Inconsolata');
+
+body {
+  font-family: 'Forum', cursive;
+  max-width: 768px;
+  margin: auto;
+  padding-left: 15px;
+  padding-right: 15px;
+  line-height: 1.5;
+}
+
+.super-header {
+  margin-top: 5px;
+  font-size: 200%;
+  line-height: 1.25;
+}
+
+.super-sub-header {
+  margin-bottom: 40px;
+  font-size: 110%;
+  line-height: 1.25;
+  vertical-align: top;
+  display: inline;
+}
+
+.header {
+  margin-bottom: 50px;
+  font-size: 400%;
+  line-height: 1.1;
+}
+
+a {
+  text-decoration: none;
+  color: red;
+}
+
+a:hover {
+  border-bottom: red 1px solid;
+}
+
+.donate-header {
+  background-color: #FFFBCC;
+  margin-bottom: 30px;
+}
+.donate-footer {
+  background-color: #FFFBCC;
+  margin-top: 50px;
+}
+
+.copyright {
+  margin-top: 2px;
+  font-size: 75%;
+}
+
+img {
+  display: block;
+  max-width: 768px;
+}
+
+p, ol, li {
+  font-family: 'EB Garamond', serif;
+}
+
+code {
+  font-family: 'Inconsolata', monospace;
+  background-color: #F7F7F7;
+  font-size: 90%
+}
+
+table {
+  font-family: 'EB Garamond', serif;
+  font-size: 1em;
+}
+
+tbody tr:nth-child(odd) {
+  background-color: #E7E7E7;
+}
+
+td {
+  padding: 5px 10px 5px 10px;
+}
+
+.content {
+  font-size: 1.2em;
+}
+
+.code-block {
+  background-color: #F7F7F7;
+  border: #AAAAAA 1px solid;
+  padding-left: 10px;
+  padding-right: 10px;
+  color: 444444;
+  white-space: pre-wrap;
+}
+
+.code-block pre {
+  white-space: pre-wrap;
+}
+
+.file-code {
+  background-color: #F7F7F7;
+  border: #AAAAAA 1px solid;
+  border-left: #FFFFFF 20px dotted;
+  border-right: #FFFFFF 20px dotted;
+  padding-left: 5px;
+  padding-right: 5px;
+  color: 444444;
+}
+
+.file-code pre {
+  white-space: pre-wrap;
+}

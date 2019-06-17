@@ -1,0 +1,166 @@
+<html>
+<head>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<link href="stylesheet.css" rel="stylesheet">
+<title>Anatomy of the Snake : 02: Functions in Python</title>
+<script type="text/javascript" async
+  src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/MathJax.js?config=TeX-MML-AM_CHTML" async>
+</script>
+</head>
+<body>
+<a style="text-decoration: none; color: inherit;" href="index.html">
+<div class="super-header">Anatomy of the Snake</div>
+<div class="super-sub-header">A not-so-beginner course in Python
+  <img style="display:inline; padding: 5px 5px 20px 5px;" height="50px" src="python-logo.png"/>
+</div>
+</a>
+<div class="donate-header">
+If you find this useful, please consider <a href="https://paypal.me/sauvikbiswas" target="_blank">donating</a>. More information can be found in the <a href="about.html">about page</a>.
+</div>
+<div class="header">02: Functions in Python</div>
+<div class="content">
+<h2>Functions as first-class objects</h2>
+<p>There is a built-in function, <code>dir</code>, that return what attributes&mdash;methods and variables&mdash;are present in an object. Let us try it out on an integer and a string.</p>
+<div class="code-block"><pre><code>>>> an_int=5
+>>> dir(an_int)
+['__abs__', '__add__', '__and__', '__bool__', '__ceil__', '__class__', '__delattr__', '__dir__', '__divmod__', '__doc__', '__eq__', '__float__', '__floor__', '__floordiv__', '__format__', '__ge__', '__getattribute__', '__getnewargs__', '__gt__', '__hash__', '__index__', '__init__', '__init_subclass__', '__int__', '__invert__', '__le__', '__lshift__', '__lt__', '__mod__', '__mul__', '__ne__', '__neg__', '__new__', '__or__', '__pos__', '__pow__', '__radd__', '__rand__', '__rdivmod__', '__reduce__', '__reduce_ex__', '__repr__', '__rfloordiv__', '__rlshift__', '__rmod__', '__rmul__', '__ror__', '__round__', '__rpow__', '__rrshift__', '__rshift__', '__rsub__', '__rtruediv__', '__rxor__', '__setattr__', '__sizeof__', '__str__', '__sub__', '__subclasshook__', '__truediv__', '__trunc__', '__xor__', 'bit_length', 'conjugate', 'denominator', 'from_bytes', 'imag', 'numerator', 'real', 'to_bytes']
+
+>>> a_string="Hello World"
+>>> dir(a_string)
+['__add__', '__class__', '__contains__', '__delattr__', '__dir__', '__doc__', '__eq__', '__format__', '__ge__', '__getattribute__', '__getitem__', '__getnewargs__', '__gt__', '__hash__', '__init__', '__init_subclass__', '__iter__', '__le__', '__len__', '__lt__', '__mod__', '__mul__', '__ne__', '__new__', '__reduce__', '__reduce_ex__', '__repr__', '__rmod__', '__rmul__', '__setattr__', '__sizeof__', '__str__', '__subclasshook__', 'capitalize', 'casefold', 'center', 'count', 'encode', 'endswith', 'expandtabs', 'find', 'format', 'format_map', 'index', 'isalnum', 'isalpha', 'isdecimal', 'isdigit', 'isidentifier', 'islower', 'isnumeric', 'isprintable', 'isspace', 'istitle', 'isupper', 'join', 'ljust', 'lower', 'lstrip', 'maketrans', 'partition', 'replace', 'rfind', 'rindex', 'rjust', 'rpartition', 'rsplit', 'rstrip', 'split', 'splitlines', 'startswith', 'strip', 'swapcase', 'title', 'translate', 'upper', 'zfill']
+>>>
+</pre></code></div>
+
+<p>How about our <code>vector</code>-class implementation?</p>
+<div class="code-block"><pre><code>>>> dir(vector)
+['__abs__', '__add__', '__and__', '__ceil__', '__class__', '__complex__', '__delattr__', '__dict__', '__dir__', '__divmod__', '__doc__', '__eq__', '__float__', '__floor__', '__floordiv__', '__format__', '__ge__', '__getattribute__', '__getitem__', '__gt__', '__hash__', '__iadd__', '__iand__', '__ifloordiv__', '__ilshift__', '__imatmul__', '__imod__', '__imul__', '__index__', '__init__', '__init_subclass__', '__int__', '__invert__', '__ior__', '__ipow__', '__irshift__', '__isub__', '__itruediv__', '__ixor__', '__le__', '__lshift__', '__lt__', '__matmul__', '__mod__', '__module__', '__mul__', '__ne__', '__neg__', '__new__', '__or__', '__pos__', '__pow__', '__radd__', '__rand__', '__rdivmod__', '__reduce__', '__reduce_ex__', '__repr__', '__rfloordiv__', '__rlshift__', '__rmatmul__', '__rmod__', '__rmul__', '__ror__', '__round__', '__rpow__', '__rrshift__', '__rshift__', '__rsub__', '__rtruediv__', '__rxor__', '__setattr__', '__setitem__', '__sizeof__', '__str__', '__sub__', '__subclasshook__', '__truediv__', '__trunc__', '__weakref__', '__xor__']
+</pre></code></div>
+
+<p>The stuff in the above output seems familiar. Most of these are the methods we have implemented (or <code>NotImplemented</code>). There are a few that we do not recognise as of now.</p>
+<p>How about the function <code>dir</code> itself?</p>
+<div class="code-block"><pre><code>>>> dir(dir)
+['__call__', '__class__', '__delattr__', '__dir__', '__doc__', '__eq__', '__format__', '__ge__', '__getattribute__', '__gt__', '__hash__', '__init__', '__init_subclass__', '__le__', '__lt__', '__module__', '__name__', '__ne__', '__new__', '__qualname__', '__reduce__', '__reduce_ex__', '__repr__', '__self__', '__setattr__', '__sizeof__', '__str__', '__subclasshook__', '__text_signature__']
+</pre></code></div>
+
+<p>In essence, the entity <code>dir</code> is no different than <code>an_int</code>, <code>a_string</code> or <code>vector</code>. They all contain different things but structurally they are treated like each other&mdash;they are all objects.</p>
+<h2>Lambda&mdash;the anonymous, single-line functions</h2>
+<p>Just like most functional programming languages, Python gives us the tools to define anonymous functions using the <code>lambda</code> keyword. The syntax is like this&mdash;</p>
+<p><code>lambda arg1, arg2, arg3,&hellip; : &lt;return expression&gt;</code></p>
+<p>In order to illustrate this, let us write a function two add two objects&mdash;one using <code>def</code> and the other using <code>lambda</code>.</p>
+<div class="code-block"><pre><code>>>> def add(a, b):
+&hellip;    return a+b
+&hellip;
+
+>>> add_lambda = lambda a, b: a+b
+
+>>> add(1,2)
+3
+>>> add_lambda(1,2)
+3
+</pre></code></div>
+
+<p>They both behave the same way. In fact, <code>dir(add)</code> and <code>dir(add_lambda)</code> would display the same results. The only way to know which is which is to check the <code>__name__</code> attribute of both functions.</p>
+<div class="code-block"><pre><code>>>> add.__name__
+'add'
+>>> add_lambda.__name__
+'&lt;lambda&gt;'
+</pre></code></div>
+
+<p>Python functions implement the concept of lazy evaluation.</p>
+<p>To test it out, we can use a simple sinusoidal function \(y = A \cos (\omega t + \phi) \). There are four variables whose value must be provided in order for the function to be evaluated&mdash;</p>
+<div class="code-block"><pre><code>>>> w=lambda a, omega, t, phi: a*math.sin(omega*t+phi)
+>>> w(1,1,2.5,0)
+&lt;Traceback message&gt;
+NameError: name 'math' is not defined
+
+>>> import math
+>>> w(1,1,2.5,0)
+0.5984721441039565
+</pre></code></div>
+
+<p>We can safely write our function, which depends on the <code>math</code> module, without importing it. Python doesn't check if any dependency has been imported into the current namespace while declaring the function. Only when it tries to evaluate the function, it checks if everything is available.</p>
+<p>This opens the door for partially applied functions as well. We can now use our pre-defined function <code>w</code> and write a sinusoidal function that has a frequency (<code>omega</code>) of 1.0 and an offset (<code>phi</code>) of 0.0.</p>
+<div class="code-block"><pre><code>>>> w_f1_o0=lambda a, t: w(a, 1.0, t, 0.0)
+>>> w_f1_o0(1,2.5)
+0.5984721441039565
+</pre></code></div>
+
+<p>This is the same value we saw in the earlier code block. Needless to say, the feature extends to full-fledged <code>def</code> constructs as well. This will come in handy when we study about decorators.</p>
+<p>Anyone who has dabbled with Haskell or Lisp would know that it is possible to write fully-functional programs with this construct alone&mdash;including decision trees and loops replaced by recursive constructs. Since Python is a multi-paradigm language and encourages side-effects (change of state), it would be an over-the-top exercise to demonstrate programs without side-effects even if it is possible. Instead, we will try to focus on how functions&mdash;including anonymous ones&mdash;can be used in Python.</p>
+<h2>Map, Filter, and Reduce</h2>
+<p>We now focus our attention to three things that was ported from the family of traditional functional programming languages. The first one is <code>map</code>.</p>
+<p><code>map</code> takes a function and iterables as its arguments, and returns another iterable whose values are the results of the function applied to individual objects yielded by the input iterables. Let's say that we have a function \(f\) that is defined as \(f=f(x_1,x_2,x_3,&hellip;)\). If we had a chain of values for \(x_1\), \(x_2\), \(x_3\), etc. we could obtain a chain of values by applying the function \(f\) on each of the corresponding values in \(x_1\), \(x_2\), \(x_3\), etc. In the world of Python, if <code>g=map(f, x1, x2, x3,&hellip;)</code>, then <code>g[0]=f(x1[0], x2[0], x3[0],&hellip;)</code>, <code>g[1]=f(x1[1], x2[1], x3[1],&hellip;)</code> and so on.</p>
+<p>Let us use our <code>w_f1_o0</code> function that takes two arguments and feed it with the simplest form of iterators&mdash;i.e, lists.</p>
+<div class="code-block"><pre><code>>>> pi=math.pi
+>>> a = [1]*5 + [2]*5
+>>> t=[0, pi/4, pi/2, 3*pi/4, pi]*2
+
+>>> map(w_f1_o0, a, t)
+&lt;map object at 0x7f17c9eb79b0&gt;
+
+>>> list(map(w_f1_o0, a, t))
+[0.0, 0.7071067811865475, 1.0, 0.7071067811865476, 1.2246467991473532e-16, 0.0, 1.414213562373095, 2.0, 1.4142135623730951, 2.4492935982947064e-16]
+</pre></code></div>
+
+<p>We have constructed a list of amplitudes, <code>a=[1, 1, 1, 1, 1, 2, 2, 2, 2, 2]</code>, and time points, <code>t=[0, pi/4, pi/2, 3*pi/4, pi, 0, pi/4, pi/2, 3*pi/4, pi]</code>. Both have a length of ten. The map function actually doesn't return a result but a map object which will be evaluated only if we ask of it; which is exactly what happens when we force it to be converted into a list object. The output is <code>[w_f1_o0(1, 0), w_f1_o0(1, pi/4), w_f1_o0(1, pi/2),&hellip;]</code>. The function <code>w_f1_o0</code> is applied until the shortest iterator is exhausted. Mark the word "shortest". The evaluation of map function terminates when any of the argument iterators exhausts itself.</p>
+<p>Just to test out the exhaustion of shortest iterator, we can shorten the length of <code>a</code> to eight and run a test. (<code>t</code> is still of length ten.)</p>
+<div class="code-block"><pre><code>>>> a = [1]*5 + [2]*3
+>>> list(map(w_f1_o0, a, t))
+[0.0, 0.7071067811865475, 1.0, 0.7071067811865476, 1.2246467991473532e-16, 0.0, 1.414213562373095, 2.0]
+</pre></code></div>
+
+<p>As expected, the output is of length eight.</p>
+<p>The <code>map</code> function's lazy evaluation is best exhibited when it is called as an iterator in a for-loop. We will use the enumerate function which will return an index and truncate the loop after the first five occurrences.</p>
+<div class="code-block"><pre><code>>>> for i, val in enumerate(map(w_f1_o0, a, t)):
+&hellip;     if i>4:
+&hellip;         break
+&hellip;     print(val)
+&hellip;
+0.0
+0.7071067811865475
+1.0
+0.7071067811865476
+1.2246467991473532e-16
+</pre></code></div>
+
+<p>At no point is the sixth, seventh, and eight value evaluated as Python never gets to call <code>w_f1_o0(2, 0)</code>, <code>w_f1_o0(2, pi/4)</code>, and <code>w_f1_o0(2, pi/2)</code>.</p>
+<p>The <code>filter</code> function takes in a predicate function, and an iterable and returns another another iterable in which the items are satisfied to be true by the predicate function. Think of the predicate function as something that takes in an object and returns <code>True</code> or <code>False</code>. In the chain of values of the input iterable, the predicate function acts like a gatekeeper and returns another iterable whose chain of values yield <code>True</code> against the predicate function.</p>
+<p>Let us test it out on a list of numbers with a predicate function that tests if the number is even.</p>
+<div class="code-block"><pre><code>>>> input = list(range(10))
+>>> input
+[0, 1, 2, 3, 4, 5, 6, 7, 8, 9]
+
+>>> is_even = lambda x: x%2==0
+>>> filter(is_even, input)
+&lt;filter object at 0x7fc748723160%gt;
+
+>>> list(filter(is_even, input))
+[0, 2, 4, 6, 8]
+</pre></code></div>
+
+<p>Just like <code>map</code> function, <code>filter</code> doesn't evaluate the values unless asked and instead returns a filter object.</p>
+<p>It is possible to pass <code>None</code> as the function in filter. In that case, the expression <code>bool(item)</code> is used as a predicator where <code>item</code> is the object returned by the input iterator.</p>
+<p>If we try it out on the same input, we get this&mdash;</p>
+<div class="code-block"><pre><code>>>> list(filter(None, input))
+[1, 2, 3, 4, 5, 6, 7, 8, 9]
+</pre></code></div>
+
+<p>This is because <code>bool(0)</code> is <code>False</code>; for all other cases, it returns <code>True</code>. If we are writing our own class, we will have to define how bool built-in function would behave on an instance of that class. This can be done by defining the <code>__bool__</code> function inside the class.</p>
+<p>What if the function is not a predicate function? Here is an example&mdash;</p>
+<div class="code-block"><pre><code>>>> is_odd = lambda x: x%2
+>>> list(filter(is_odd, input))
+[1, 3, 5, 7, 9]
+</pre></code></div>
+
+<p>The output of <code>is_odd</code> is not <code>True</code> of <code>False</code>. What Python does is force the most trivial predicate function on the output&mdash;the <code>bool</code> function. In this case, is_odd will either return a <code>0</code> or <code>1</code>. <code>bool(0)</code> and <code>bool(1)</code> yields <code>False</code> and <code>True</code> respectively. This is exactly what is used to filter.  </p>
+<p>https://www.artima.com/weblogs/viewpost.jsp?thread=98196</p>
+</div>
+<div class="donate-footer">
+If you found this useful, please consider <a href="https://paypal.me/sauvikbiswas" target="_blank">donating</a>. More information can be found in the <a href="about.html">about page</a>.
+</div>
+<div class="copyright">
+  &copy;2019, <a href="https://sauvikbiswas.com" target="_blank">Sauvik Biswas</a>. All rights reserved. Last updated: 2019-06-15
+</div>
+<p><a href="index.html">Table of contents</a></p>
+</body>
+</html>
