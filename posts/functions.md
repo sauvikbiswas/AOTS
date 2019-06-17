@@ -1,7 +1,7 @@
 $ post_id : func-prog
 $ post_title : 02: Functions in Python
 $ post_group : 99: Unsorted chapters
-$ post_last_update: 2019-06-15
+$ post_last_update: 2019-06-17
 
 ## Functions as first-class objects
 
@@ -97,7 +97,7 @@ Anyone who has dabbled with Haskell or Lisp would know that it is possible to wr
 
 ## Map, Filter, and Reduce
 
-We now focus our attention to three things that was ported from the family of traditional functional programming languages. The first one is `map`.
+We now focus our attention to three things that were ported from the family of traditional functional programming languages. The first one is `map`.
 
 `map` takes a function and iterables as its arguments, and returns another iterable whose values are the results of the function applied to individual objects yielded by the input iterables. Let's say that we have a function \\(f\\) that is defined as \\(f=f(x_1,x_2,x_3,...)\\). If we had a chain of values for \\(x_1\\), \\(x_2\\), \\(x_3\\), etc. we could obtain a chain of values by applying the function \\(f\\) on each of the corresponding values in \\(x_1\\), \\(x_2\\), \\(x_3\\), etc. In the world of Python, if `g=map(f, x1, x2, x3,...)`, then `g[0]=f(x1[0], x2[0], x3[0],...)`, `g[1]=f(x1[1], x2[1], x3[1],...)` and so on.
 
@@ -182,7 +182,47 @@ What if the function is not a predicate function? Here is an example--
 [1, 3, 5, 7, 9]
 ```
 
-The output of `is_odd` is not `True` of `False`. What Python does is force the most trivial predicate function on the output--the `bool` function. In this case, is_odd will either return a `0` or `1`. `bool(0)` and `bool(1)` yields `False` and `True` respectively. This is exactly what is used to filter.  
+The output of `is_odd` is not `True` of `False`. What Python does is force the most trivial predicate function on the output--the `bool` function. In this case, is_odd will either return a `0` or `1`. `bool(0)` and `bool(1)` yields `False` and `True` respectively. This is exactly what is used to filter.
 
+The `reduce` function is an example of a "fold" function that we might find in Lisp or Haskell. In Python 2 it is a built-in function. Sadly, it's status as a built-in has been downgraded in Python 3 by none other than Guido van Rossum--the creator of Python--himself. You can read about it [here](https://www.artima.com/weblogs/viewpost.jsp?thread=98196). In order to call `reduce` in Python 3 we must import it from a library called `functools`.
 
-https://www.artima.com/weblogs/viewpost.jsp?thread=98196
+\\(reduce(f, [x_1, x_2, x_3,...])\\), where \\([x_1, x_2, x_3,...]\\) is an iterator (not necessarily a list), and \\(f=f(p,q)\\) is a function that takes two arguments of similar type and returns one object of the same type, is equivalent to \\(f(...f(f(f(x_1, x_2),x_3),...)\\)
+
+We can actually use it to calculate the magnitude of an n-dimensional vector that is defined by a `list`, or a `tuple` (or our very own `vector` although it only supports three-dimensional ones).
+
+```
+>>> from functools import reduce
+>>> import math
+
+>>> f = lambda x, y: math.sqrt(x**2 + y**2)
+>>> a = [0.5, -0.4, 2, 0.5, -0.7]
+
+>>> mag = reduce(f, a)
+>>> print(mag)
+2.2693611435820435
+```
+
+In essence, we are taking two adjacent entities of the summation and computing that before plugging that into the next cycle of computation.
+
+$$|a| = \sqrt{\sum_{i=1}^n a_i^2} = \sqrt{...(\sqrt{(\sqrt{a_1^2 + a_2^2})^2 + a_2^2})^2 +...+a_n^2}$$
+
+It is important to note that `f = lambda x, y: math.sqrt(x**2 + y**2)` is a valid fold function as the arguments are numbers and the output is also a number, thus fulfilling the type similarity condition. Python does the operation until the list (or the iterator) runs out of values.
+
+As another example, let us try to emulate the `join` method of strings.
+
+```
+>>> s = ["I", "am", "a", "broken", "sentence."]
+>>> join = lambda delim: lambda x, y: x+delim+y
+
+>>> reduce(join(" "), s)
+'I am a broken sentence.'
+
+>>> reduce(join("_"), s)
+'I_am_a_broken_sentence.'
+```
+
+This is a good example of nested functions. `join("delimeter")` returns not a value but a function `lambda x, y: x+"delimeter"+y` that can be used as a fold function in our `reduce`.
+
+There is also a variant of the function where an initial value can be provided as the third argument of the `reduce` function. \\(reduce(f, [x_1, x_2, x_3,...], x_0)\\) is equivalent to \\(f(...f(f(f(f(x_0, x_1), x_2),x_3),...)\\).
+
+## A Pythonic usage of functions--sorting

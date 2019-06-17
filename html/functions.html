@@ -88,7 +88,7 @@ NameError: name 'math' is not defined
 <p>This is the same value we saw in the earlier code block. Needless to say, the feature extends to full-fledged <code>def</code> constructs as well. This will come in handy when we study about decorators.</p>
 <p>Anyone who has dabbled with Haskell or Lisp would know that it is possible to write fully-functional programs with this construct alone&mdash;including decision trees and loops replaced by recursive constructs. Since Python is a multi-paradigm language and encourages side-effects (change of state), it would be an over-the-top exercise to demonstrate programs without side-effects even if it is possible. Instead, we will try to focus on how functions&mdash;including anonymous ones&mdash;can be used in Python.</p>
 <h2>Map, Filter, and Reduce</h2>
-<p>We now focus our attention to three things that was ported from the family of traditional functional programming languages. The first one is <code>map</code>.</p>
+<p>We now focus our attention to three things that were ported from the family of traditional functional programming languages. The first one is <code>map</code>.</p>
 <p><code>map</code> takes a function and iterables as its arguments, and returns another iterable whose values are the results of the function applied to individual objects yielded by the input iterables. Let's say that we have a function \(f\) that is defined as \(f=f(x_1,x_2,x_3,&hellip;)\). If we had a chain of values for \(x_1\), \(x_2\), \(x_3\), etc. we could obtain a chain of values by applying the function \(f\) on each of the corresponding values in \(x_1\), \(x_2\), \(x_3\), etc. In the world of Python, if <code>g=map(f, x1, x2, x3,&hellip;)</code>, then <code>g[0]=f(x1[0], x2[0], x3[0],&hellip;)</code>, <code>g[1]=f(x1[1], x2[1], x3[1],&hellip;)</code> and so on.</p>
 <p>Let us use our <code>w_f1_o0</code> function that takes two arguments and feed it with the simplest form of iterators&mdash;i.e, lists.</p>
 <div class="code-block"><pre><code>>>> pi=math.pi
@@ -152,14 +152,44 @@ NameError: name 'math' is not defined
 [1, 3, 5, 7, 9]
 </pre></code></div>
 
-<p>The output of <code>is_odd</code> is not <code>True</code> of <code>False</code>. What Python does is force the most trivial predicate function on the output&mdash;the <code>bool</code> function. In this case, is_odd will either return a <code>0</code> or <code>1</code>. <code>bool(0)</code> and <code>bool(1)</code> yields <code>False</code> and <code>True</code> respectively. This is exactly what is used to filter.  </p>
-<p>https://www.artima.com/weblogs/viewpost.jsp?thread=98196</p>
+<p>The output of <code>is_odd</code> is not <code>True</code> of <code>False</code>. What Python does is force the most trivial predicate function on the output&mdash;the <code>bool</code> function. In this case, is_odd will either return a <code>0</code> or <code>1</code>. <code>bool(0)</code> and <code>bool(1)</code> yields <code>False</code> and <code>True</code> respectively. This is exactly what is used to filter.</p>
+<p>The <code>reduce</code> function is an example of a "fold" function that we might find in Lisp or Haskell. In Python 2 it is a built-in function. Sadly, it's status as a built-in has been downgraded in Python 3 by none other than Guido van Rossum&mdash;the creator of Python&mdash;himself. You can read about it <a href="https://www.artima.com/weblogs/viewpost.jsp?thread=98196">here</a>. In order to call <code>reduce</code> in Python 3 we must import it from a library called <code>functools</code>.</p>
+<p>\(reduce(f, [x_1, x_2, x_3,&hellip;])\), where \([x_1, x_2, x_3,&hellip;]\) is an iterator (not necessarily a list), and \(f=f(p,q)\) is a function that takes two arguments of similar type and returns one object of the same type, is equivalent to \(f(&hellip;f(f(f(x_1, x_2),x_3),&hellip;)\)</p>
+<p>We can actually use it to calculate the magnitude of an n-dimensional vector that is defined by a <code>list</code>, or a <code>tuple</code> (or our very own <code>vector</code> although it only supports three-dimensional ones).</p>
+<div class="code-block"><pre><code>>>> from functools import reduce
+>>> import math
+
+>>> f = lambda x, y: math.sqrt(x**2 + y**2)
+>>> a = [0.5, -0.4, 2, 0.5, -0.7]
+
+>>> mag = reduce(f, a)
+>>> print(mag)
+2.2693611435820435
+</pre></code></div>
+
+<p>In essence, we are taking two adjacent entities of the summation and computing that before plugging that into the next cycle of computation.</p>
+<p>$$|a| = \sqrt{\sum_{i=1}^n a_i^2} = \sqrt{&hellip;(\sqrt{(\sqrt{a_1^2 + a_2^2})^2 + a_2^2})^2 +&hellip;+a_n^2}$$</p>
+<p>It is important to note that <code>f = lambda x, y: math.sqrt(x**2 + y**2)</code> is a valid fold function as the arguments are numbers and the output is also a number, thus fulfilling the type similarity condition. Python does the operation until the list (or the iterator) runs out of values.</p>
+<p>As another example, let us try to emulate the <code>join</code> method of strings.</p>
+<div class="code-block"><pre><code>>>> s = ["I", "am", "a", "broken", "sentence."]
+>>> join = lambda delim: lambda x, y: x+delim+y
+
+>>> reduce(join(" "), s)
+'I am a broken sentence.'
+
+>>> reduce(join("_"), s)
+'I_am_a_broken_sentence.'
+</pre></code></div>
+
+<p>This is a good example of nested functions. <code>join("delimeter")</code> returns not a value but a function <code>lambda x, y: x+"delimeter"+y</code> that can be used as a fold function in our <code>reduce</code>.</p>
+<p>There is also a variant of the function where an initial value can be provided as the third argument of the <code>reduce</code> function. \(reduce(f, [x_1, x_2, x_3,&hellip;], x_0)\) is equivalent to \(f(&hellip;f(f(f(f(x_0, x_1), x_2),x_3),&hellip;)\).</p>
+<h2>A Pythonic usage of functions&mdash;sorting</h2>
 </div>
 <div class="donate-footer">
 If you found this useful, please consider <a href="https://paypal.me/sauvikbiswas" target="_blank">donating</a>. More information can be found in the <a href="about.html">about page</a>.
 </div>
 <div class="copyright">
-  &copy;2019, <a href="https://sauvikbiswas.com" target="_blank">Sauvik Biswas</a>. All rights reserved. Last updated: 2019-06-15
+  &copy;2019, <a href="https://sauvikbiswas.com" target="_blank">Sauvik Biswas</a>. All rights reserved. Last updated: 2019-06-17
 </div>
 <p><a href="index.html">Table of contents</a></p>
 </body>
