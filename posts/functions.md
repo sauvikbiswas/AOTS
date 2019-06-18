@@ -1,7 +1,7 @@
 $ post_id : func-prog
 $ post_title : 02: Functions in Python
 $ post_group : 99: Unsorted chapters
-$ post_last_update: 2019-06-17
+$ post_last_update: 2019-06-18
 
 ## Functions as first-class objects
 
@@ -221,8 +221,67 @@ As another example, let us try to emulate the `join` method of strings.
 'I_am_a_broken_sentence.'
 ```
 
-This is a good example of nested functions. `join("delimeter")` returns not a value but a function `lambda x, y: x+"delimeter"+y` that can be used as a fold function in our `reduce`.
+This is a good example of a nested function. `join("delimeter")` returns not a value but a function `lambda x, y: x+"delimeter"+y` that can be used as a fold function in our `reduce`.
 
-There is also a variant of the function where an initial value can be provided as the third argument of the `reduce` function. \\(reduce(f, [x_1, x_2, x_3,...], x_0)\\) is equivalent to \\(f(...f(f(f(f(x_0, x_1), x_2),x_3),...)\\).
+There is also a variant of the `reduce` function where an initial value can be provided as the third argument of the `reduce` function. \\(reduce(f, [x_1, x_2, x_3,...], x_0)\\) is equivalent to \\(f(...f(f(f(f(x_0, x_1), x_2),x_3),...)\\).
 
 ## A Pythonic usage of functions--sorting
+
+At its very core, the built-in function sorted sorts the iterables--items of a list, characters of a string, keys of a dictionary, etc.--and returns a list. It also allows sorting in descending order using the named argument, `reverse`.
+
+```
+>>> a = [2,5,4,1,3]
+>>> sorted(a)
+[1, 2, 3, 4, 5]
+
+>>> s = "sortme"
+>>> sorted(s)
+['e', 'm', 'o', 'r', 's', 't']
+
+>>> sorted(s, reverse=True)
+['t', 's', 'r', 'o', 'm', 'e']
+```
+
+But we are not going to explore this here. What we are interested in is the other named argument--`key`. `key` is a function that takes in an item of the iterable and returns an object that will be used to sort the items in the iterable. What is important is that the object that is returned has the "<" operator implemented with the `__lt__` method.
+
+Let us take an example where we have a list representing an inventory of fruits whose each element is a tuple--the name of the fruit and the quantity in stock. We can sort this by quantity.
+
+```
+>>> inventory = [('pineapple', 2), ('apple', 3), ('banana', 2), ('pear', 5), ('orange', 3)]
+>>> k_q = lambda x: x[1]
+>>> sorted(inventory, key=k_q)
+[('pineapple', 2), ('banana', 2), ('apple', 3), ('orange', 3), ('pear', 5)]
+```
+
+The function `k_q` just returns the second item. For our usecase, our item in iterator is a tuple and we need the second item in that tuple for sorting purposes.
+
+It is also possible to do a second level sort where the quantities are in ascending order as well as the names of fruits having the same quantities are also arranged in alphabetical order amongst themselves. In this case, key argument needs a function that returns a tuple--one that has its elements arranged with the sort hierarchy.
+
+```
+>>> k_q_n = lambda x: (x[1], x[0])
+>>> sorted(inventory, key=k_q_n)
+[('banana', 2), ('pineapple', 2), ('apple', 3), ('orange', 3), ('pear', 5)]
+```
+
+A reverse sort is also trivial.
+
+```
+>>> sorted(inventory, key=k_q_n, reverse=True)
+[('pear', 5), ('orange', 3), ('apple', 3), ('pineapple', 2), ('banana', 2)]
+```
+
+What would be interesting would be to do a mixed sort--sort the quantities in descending order and then sort the names in ascending order amongst themselves. In order to do that, we will have to sort in stages.
+
+```
+k_n = lambda x: x[0]
+>>> l1 = sorted(inventory, key=k_n)
+>>> print(l1)
+[('apple', 3), ('banana', 2), ('orange', 3), ('pear', 5), ('pineapple', 2)]
+
+>>> l2 = sorted(l1, key=k_q, reverse=True)
+>>> print(l2)
+[('pear', 5), ('apple', 3), ('orange', 3), ('banana', 2), ('pineapple', 2)]
+
+```
+
+The lowest level of sort has to be done first, which in our case is on the basis of the name of fruits. This output has to be fed to the next level of sorting, which in our case is the quantity. This demonstrates something important about the `sorted` function--in case of equality, the order of the items in the input iterable remains intact. When `l2 = sorted...` is being executed, `('apple', 3)` occurs before `('orange', 3)` and `('banana', 2)` occurs before `('pineapple', 2)` in the input iterable (`l1` in this case). This order is preserved. During sorting for `l2`, when `k_q(('apple', 3))` is pitted against `k_q(('orange', 3))`, the return values are equal and thus no shuffling takes place. This is known as sort stability.

@@ -181,16 +181,82 @@ NameError: name 'math' is not defined
 'I_am_a_broken_sentence.'
 </pre></code></div>
 
-<p>This is a good example of nested functions. <code>join("delimeter")</code> returns not a value but a function <code>lambda x, y: x+"delimeter"+y</code> that can be used as a fold function in our <code>reduce</code>.</p>
-<p>There is also a variant of the function where an initial value can be provided as the third argument of the <code>reduce</code> function. \(reduce(f, [x_1, x_2, x_3,&hellip;], x_0)\) is equivalent to \(f(&hellip;f(f(f(f(x_0, x_1), x_2),x_3),&hellip;)\).</p>
+<p>This is a good example of a nested function. <code>join("delimeter")</code> returns not a value but a function <code>lambda x, y: x+"delimeter"+y</code> that can be used as a fold function in our <code>reduce</code>.</p>
+<p>There is also a variant of the <code>reduce</code> function where an initial value can be provided as the third argument of the <code>reduce</code> function. \(reduce(f, [x_1, x_2, x_3,&hellip;], x_0)\) is equivalent to \(f(&hellip;f(f(f(f(x_0, x_1), x_2),x_3),&hellip;)\).</p>
 <h2>A Pythonic usage of functions&mdash;sorting</h2>
+<p>At its very core, the built-in function sorted sorts the iterables&mdash;items of a list, characters of a string, keys of a dictionary, etc.&mdash;and returns a list. It also allows sorting in descending order using the named argument, <code>reverse</code>.</p>
+<div class="code-block"><pre><code>>>> a = [2,5,4,1,3]
+>>> sorted(a)
+[1, 2, 3, 4, 5]
+
+>>> s = "sortme"
+>>> sorted(s)
+['e', 'm', 'o', 'r', 's', 't']
+
+>>> sorted(s, reverse=True)
+['t', 's', 'r', 'o', 'm', 'e']
+</pre></code></div>
+
+<p>But we are not going to explore this here. What we are interested in is the other named argument&mdash;<code>key</code>. <code>key</code> is a function that takes in an item of the iterable and returns an object that will be used to sort the items in the iterable. What is important is that the object that is returned has the "&lt;" operator implemented with the <code>__lt__</code> method.</p>
+<p>Let us take an example where we have a list representing an inventory of fruits whose each element is a tuple&mdash;the name of the fruit and the quantity in stock. We can sort this by quantity.</p>
+<div class="code-block"><pre><code>>>> inventory = [('pineapple', 2), ('apple', 3), ('banana', 2), ('pear', 5), ('orange', 3)]
+>>> k_q = lambda x: x[1]
+>>> sorted(inventory, key=k_q)
+[('pineapple', 2), ('banana', 2), ('apple', 3), ('orange', 3), ('pear', 5)]
+</pre></code></div>
+
+<p>The function <code>k_q</code> just returns the second item. For our usecase, our item in iterator is a tuple and we need the second item in that tuple for sorting purposes.</p>
+<p>It is also possible to do a second level sort where the quantities are in ascending order as well as the names of fruits having the same quantities are also arranged in alphabetical order amongst themselves. In this case, key argument needs a function that returns a tuple&mdash;one that has its elements arranged with the sort hierarchy.</p>
+<div class="code-block"><pre><code>>>> k_q_n = lambda x: (x[1], x[0])
+>>> sorted(inventory, key=k_q_n)
+[('banana', 2), ('pineapple', 2), ('apple', 3), ('orange', 3), ('pear', 5)]
+</pre></code></div>
+
+<p>A reverse sort is also trivial.</p>
+<div class="code-block"><pre><code>>>> sorted(inventory, key=k_q_n, reverse=True)
+[('pear', 5), ('orange', 3), ('apple', 3), ('pineapple', 2), ('banana', 2)]
+</pre></code></div>
+
+<p>What would be interesting would be to do a mixed sort&mdash;sort the quantities in descending order and then sort the names in ascending order amongst themselves. In order to do that, we will have to sort in stages.</p>
+<div class="code-block"><pre><code>k_n = lambda x: x[0]
+>>> l1 = sorted(inventory, key=k_n)
+>>> print(l1)
+[('apple', 3), ('banana', 2), ('orange', 3), ('pear', 5), ('pineapple', 2)]
+
+>>> l2 = sorted(l1, key=k_q, reverse=True)
+>>> print(l2)
+[('pear', 5), ('apple', 3), ('orange', 3), ('banana', 2), ('pineapple', 2)]
+
+</pre></code></div>
+
+<p>The lowest level of sort has to be done first, which in our case is on the basis of the name of fruits. This output has to be fed to the next level of sorting, which in our case is the quantity. This demonstrates something important about the <code>sorted</code> function&mdash;in case of equality, the order of the items in the input iterable remains intact. When <code>l2 = sorted&hellip;</code> is being executed, <code>('apple', 3)</code> occurs before <code>('orange', 3)</code> and <code>('banana', 2)</code> occurs before <code>('pineapple', 2)</code> in the input iterable (<code>l1</code> in this case). This order is preserved. During sorting for <code>l2</code>, when <code>k_q(('apple', 3))</code> is pitted against <code>k_q(('orange', 3))</code>, the return values are equal and thus no shuffling takes place. This is known as sort stability.</p>
 </div>
 <div class="donate-footer">
 If you found this useful, please consider <a href="https://paypal.me/sauvikbiswas" target="_blank">donating</a>. More information can be found in the <a href="about.html">about page</a>.
 </div>
 <div class="copyright">
-  &copy;2019, <a href="https://sauvikbiswas.com" target="_blank">Sauvik Biswas</a>. All rights reserved. Last updated: 2019-06-17
+  &copy;2019, <a href="https://sauvikbiswas.com" target="_blank">Sauvik Biswas</a>. All rights reserved. Last updated: 2019-06-18
 </div>
 <p><a href="index.html">Table of contents</a></p>
+<div id="disqus_thread"></div>
+<script>
+
+/**
+*  RECOMMENDED CONFIGURATION VARIABLES: EDIT AND UNCOMMENT THE SECTION BELOW TO INSERT DYNAMIC VALUES FROM YOUR PLATFORM OR CMS.
+*  LEARN WHY DEFINING THESE VARIABLES IS IMPORTANT: https://disqus.com/admin/universalcode/#configuration-variables*/
+/*
+var disqus_config = function () {
+this.page.url = https://sauvikbiswas.com/AOTS/func-prog.html;  // Replace PAGE_URL with your page's canonical URL variable
+this.page.identifier = func-prog; // Replace PAGE_IDENTIFIER with your page's unique identifier variable
+};
+*/
+(function() { // DON'T EDIT BELOW THIS LINE
+var d = document, s = d.createElement('script');
+s.src = 'https://aots.disqus.com/embed.js';
+s.setAttribute('data-timestamp', +new Date());
+(d.head || d.body).appendChild(s);
+})();
+</script>
+<noscript>Please enable JavaScript to view the <a href="https://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
 </body>
 </html>
