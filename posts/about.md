@@ -3,7 +3,7 @@ $ post_title : 00: About this project
 $ post_group : 00: Front matter
 $ post_last_update: 2019-06-07
 
-In June '19, I found myself in a financially weird position. The reasons of this misfortune were not under my control. I thought of writing something that would be of value to the greater community and thus this project was born. I will keep it free for all but would welcome any donation that might help me sustain myself as well as motivate me to devote time on this book.
+I thought of writing something that would be of value to the greater community and thus this project was born. I will keep it free for all but would welcome any donation ([https://paypal.com/sauvikbiswas](https://paypal.com/sauvikbiswas)) that might help me sustain myself, buy me a coffee or a meal as well as motivate me to devote time on this book.
 
 Any comments regarding the contents or the arrangement of topics in the book are also welcome. I have added Disqus threads to each page. You can also visit [https://disqus.com/home/forums/aots/](https://disqus.com/home/forums/aots/) to see all discussion threads.
 

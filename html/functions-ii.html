@@ -1,0 +1,120 @@
+<html>
+<head>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<link href="stylesheet.css" rel="stylesheet">
+<title>Anatomy of the Snake : 03: Functions&mdash;II. Arguments and returns</title>
+<script type="text/javascript" async
+  src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/MathJax.js?config=TeX-MML-AM_CHTML" async>
+</script>
+</head>
+<body>
+<a style="text-decoration: none; color: inherit;" href="index.html">
+<div class="super-header">Anatomy of the Snake</div>
+<div class="super-sub-header">A not-so-beginner course in Python
+  <img style="display:inline; padding: 5px 5px 20px 5px;" height="50px" src="python-logo.png"/>
+</div>
+</a>
+<div class="donate-header">
+If you find this useful, please consider <a href="https://paypal.me/sauvikbiswas" target="_blank">donating</a>. More information can be found in the <a href="about.html">about page</a>.
+</div>
+<div class="header">03: Functions&mdash;II. Arguments and returns</div>
+<div class="content">
+<h2>Arguments to Python functions</h2>
+<p>In the previous section, we had encountered two functions that had some optional arguments&mdash;the <code>reduce</code> function with its optional initial value and the <code>sorted</code> function with its optional key function and reverse flag.</p>
+<p>Let us try to write rewrite our earlier sinusoidal function \(y = A \cos (\omega t + \phi) \). This time if offset, \(phi\) is not specified, we will assume it to be 0.</p>
+<div class="file-code"><pre><code>import math
+def w(a, omega, t=1, phi=0):
+    return a*math.sin(omega*t+phi)
+</pre></code></div>
+
+<p>Let us do some test runs&mdash;</p>
+<div class="code-block"><pre><code>>>> w(1,2.5,1,3.14)
+-0.599747328794043
+
+>>> w(1,2.5,1,0)
+0.5984721441039565
+
+>>> w(1,2.5,1)
+0.5984721441039565
+
+>>> w(1,2.5)
+0.5984721441039565
+</pre></code></div>
+
+<p>The last three calls are identical. In the absence of any value for our third and fourth positional argument, <code>t</code> and <code>phi</code>, Python takes the default value of 1 and 0 respectively.</p>
+<p>What if we want to specify the value of <code>phi</code> but use the default value of <code>t</code>?</p>
+<div class="code-block"><pre><code>>>> w(1,2.5,phi=3.14)
+-0.599747328794043
+</pre></code></div>
+
+<p>Here, <code>phi</code> must be passed as a named argument or keyword argument. Otherwise, Python will take its position and bind it to the argument in the definition occurring in the corresponding location.</p>
+<p>What about the following two cases?</p>
+<div class="code-block"><pre><code>>>> w(t=1, a=1, omega=2.5)
+0.5984721441039565
+
+>>> w(t=1, phi=0, a=1, omega=2.5)
+0.5984721441039565
+</pre></code></div>
+
+<p>These are function calls that uses keyword arguments for all the bindings. When using such a call style, even the arguments without default values can be positioned anywhere.</p>
+<p>It is also possible to pass all positional arguments as a sequence&mdash;list or tuple&mdash;and all keyword arguments as a dictionary. Here are some sets of identical calls.</p>
+<div class="code-block"><pre><code>>>> w(1,2.5,1,3.14)
+-0.599747328794043
+>>> w(*[1,2.5,1,3.14])
+-0.599747328794043
+
+>>> w(1,2.5,phi=3.14)
+-0.599747328794043
+>>> w(*(1,2.5), **{'phi': 3.14})
+-0.599747328794043
+
+>>> w(t=1, phi=0, a=1, omega=2.5)
+0.5984721441039565
+>>> w(**{'t': 1, 'phi': 0, 'a': 1, 'omega': 2.5})
+0.5984721441039565
+</pre></code></div>
+
+<p>If you have been a C programmer, the first instinct would be to think of them as pointers and pointers to pointers. However, it is not the case. A <code>*</code> indicates that the list or tuple must be unpacked as positional arguments and a <code>**</code> indicates that the keys of the dictionary must be matched up with the argument names and the values of the keys must be assigned to the corresponding arguments.</p>
+<p>There is a caveat that must be taken into consideration while defining default values. Let us say that our code file looks like this&mdash;</p>
+<div class="file-code"><pre><code>import math
+
+t_default = 1
+phi_default = 0
+
+def w(a, omega, t=t_default, phi=phi_default):
+    return a*math.sin(omega*t+phi)
+
+t_default = 0
+</pre></code></div>
+
+<p>If the function is called in the following fashion: <code>w(1,2.5)</code>, the defaults would be <code>t=1</code> and <code>phi=0</code> and not <code>t=0</code> and <code>phi=0</code>. This is because the evaluation of defaults happen when the <code>def</code> statement is encountered. However, the body of the function is not evaluated at that stage&mdash;we can still take advantage of Python's lazy evaluation.</p>
+</div>
+<div class="donate-footer">
+If you found this useful, please consider <a href="https://paypal.me/sauvikbiswas" target="_blank">donating</a>. More information can be found in the <a href="about.html">about page</a>.
+</div>
+<div class="copyright">
+  &copy;2019, <a href="https://sauvikbiswas.com" target="_blank">Sauvik Biswas</a>. All rights reserved. Last updated: 2019-06-18
+</div>
+<p><a href="index.html">Table of contents</a></p>
+<div id="disqus_thread"></div>
+<script>
+
+/**
+*  RECOMMENDED CONFIGURATION VARIABLES: EDIT AND UNCOMMENT THE SECTION BELOW TO INSERT DYNAMIC VALUES FROM YOUR PLATFORM OR CMS.
+*  LEARN WHY DEFINING THESE VARIABLES IS IMPORTANT: https://disqus.com/admin/universalcode/#configuration-variables*/
+/*
+var disqus_config = function () {
+this.page.url = https://sauvikbiswas.com/AOTS/functions-ii.html;  // Replace PAGE_URL with your page's canonical URL variable
+this.page.identifier = functions-ii; // Replace PAGE_IDENTIFIER with your page's unique identifier variable
+};
+*/
+(function() { // DON'T EDIT BELOW THIS LINE
+var d = document, s = d.createElement('script');
+s.src = 'https://aots.disqus.com/embed.js';
+s.setAttribute('data-timestamp', +new Date());
+(d.head || d.body).appendChild(s);
+})();
+</script>
+<noscript>Please enable JavaScript to view the <a href="https://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+</body>
+</html>

@@ -1,5 +1,5 @@
-$ post_id : func-prog
-$ post_title : 02: Functions in Python
+$ post_id : functions-i
+$ post_title : 02: Functions--I. The anonymous ones
 $ post_group : 99: Unsorted chapters
 $ post_last_update: 2019-06-18
 
@@ -285,3 +285,5 @@ k_n = lambda x: x[0]
 ```
 
 The lowest level of sort has to be done first, which in our case is on the basis of the name of fruits. This output has to be fed to the next level of sorting, which in our case is the quantity. This demonstrates something important about the `sorted` function--in case of equality, the order of the items in the input iterable remains intact. When `l2 = sorted...` is being executed, `('apple', 3)` occurs before `('orange', 3)` and `('banana', 2)` occurs before `('pineapple', 2)` in the input iterable (`l1` in this case). This order is preserved. During sorting for `l2`, when `k_q(('apple', 3))` is pitted against `k_q(('orange', 3))`, the return values are equal and thus no shuffling takes place. This is known as sort stability.
+
+In all these above examples of map, filter, reduce and sorted, functions defined using the `def` construct would also work. (There aren't any structural differences between the two.) Sometimes, if the functions are complicated, a `def` construct may be better because of its readability.

@@ -2,7 +2,7 @@
 <head>
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <link href="stylesheet.css" rel="stylesheet">
-<title>Anatomy of the Snake : 02: Functions in Python</title>
+<title>Anatomy of the Snake : 02: Functions&mdash;I. The anonymous ones</title>
 <script type="text/javascript" async
   src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/MathJax.js?config=TeX-MML-AM_CHTML" async>
 </script>
@@ -17,7 +17,7 @@
 <div class="donate-header">
 If you find this useful, please consider <a href="https://paypal.me/sauvikbiswas" target="_blank">donating</a>. More information can be found in the <a href="about.html">about page</a>.
 </div>
-<div class="header">02: Functions in Python</div>
+<div class="header">02: Functions&mdash;I. The anonymous ones</div>
 <div class="content">
 <h2>Functions as first-class objects</h2>
 <p>There is a built-in function, <code>dir</code>, that return what attributes&mdash;methods and variables&mdash;are present in an object. Let us try it out on an integer and a string.</p>
@@ -230,6 +230,7 @@ NameError: name 'math' is not defined
 </pre></code></div>
 
 <p>The lowest level of sort has to be done first, which in our case is on the basis of the name of fruits. This output has to be fed to the next level of sorting, which in our case is the quantity. This demonstrates something important about the <code>sorted</code> function&mdash;in case of equality, the order of the items in the input iterable remains intact. When <code>l2 = sorted&hellip;</code> is being executed, <code>('apple', 3)</code> occurs before <code>('orange', 3)</code> and <code>('banana', 2)</code> occurs before <code>('pineapple', 2)</code> in the input iterable (<code>l1</code> in this case). This order is preserved. During sorting for <code>l2</code>, when <code>k_q(('apple', 3))</code> is pitted against <code>k_q(('orange', 3))</code>, the return values are equal and thus no shuffling takes place. This is known as sort stability.</p>
+<p>In all these above examples of map, filter, reduce and sorted, functions defined using the <code>def</code> construct would also work. (There aren't any structural differences between the two.) Sometimes, if the functions are complicated, a <code>def</code> construct may be better because of its readability.</p>
 </div>
 <div class="donate-footer">
 If you found this useful, please consider <a href="https://paypal.me/sauvikbiswas" target="_blank">donating</a>. More information can be found in the <a href="about.html">about page</a>.
@@ -246,8 +247,8 @@ If you found this useful, please consider <a href="https://paypal.me/sauvikbiswa
 *  LEARN WHY DEFINING THESE VARIABLES IS IMPORTANT: https://disqus.com/admin/universalcode/#configuration-variables*/
 /*
 var disqus_config = function () {
-this.page.url = https://sauvikbiswas.com/AOTS/func-prog.html;  // Replace PAGE_URL with your page's canonical URL variable
-this.page.identifier = func-prog; // Replace PAGE_IDENTIFIER with your page's unique identifier variable
+this.page.url = https://sauvikbiswas.com/AOTS/functions-i.html;  // Replace PAGE_URL with your page's canonical URL variable
+this.page.identifier = functions-i; // Replace PAGE_IDENTIFIER with your page's unique identifier variable
 };
 */
 (function() { // DON'T EDIT BELOW THIS LINE
