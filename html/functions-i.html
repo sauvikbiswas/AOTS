@@ -2,7 +2,7 @@
 <head>
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <link href="stylesheet.css" rel="stylesheet">
-<title>Anatomy of the Snake : 02: Functions&mdash;I. The anonymous ones</title>
+<title>Anatomy of the Snake : 01: The anonymous ones and some usages</title>
 <script type="text/javascript" async
   src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/MathJax.js?config=TeX-MML-AM_CHTML" async>
 </script>
@@ -17,10 +17,10 @@
 <div class="donate-header">
 If you find this useful, please consider <a href="https://paypal.me/sauvikbiswas" target="_blank">donating</a>. More information can be found in the <a href="about.html">about page</a>.
 </div>
-<div class="header">02: Functions&mdash;I. The anonymous ones</div>
+<div class="header">01: The anonymous ones and some usages</div>
 <div class="content">
 <h2>Functions as first-class objects</h2>
-<p>There is a built-in function, <code>dir</code>, that return what attributes&mdash;methods and variables&mdash;are present in an object. Let us try it out on an integer and a string.</p>
+<p>There is a built-in function, <code>dir</code>, that return what methods and variables are present in an object. These methods and variables are known as <em>attributes</em>. Let us try it out on an integer and a string.</p>
 <div class="code-block"><pre><code>>>> an_int=5
 >>> dir(an_int)
 ['__abs__', '__add__', '__and__', '__bool__', '__ceil__', '__class__', '__delattr__', '__dir__', '__divmod__', '__doc__', '__eq__', '__float__', '__floor__', '__floordiv__', '__format__', '__ge__', '__getattribute__', '__getnewargs__', '__gt__', '__hash__', '__index__', '__init__', '__init_subclass__', '__int__', '__invert__', '__le__', '__lshift__', '__lt__', '__mod__', '__mul__', '__ne__', '__neg__', '__new__', '__or__', '__pos__', '__pow__', '__radd__', '__rand__', '__rdivmod__', '__reduce__', '__reduce_ex__', '__repr__', '__rfloordiv__', '__rlshift__', '__rmod__', '__rmul__', '__ror__', '__round__', '__rpow__', '__rrshift__', '__rshift__', '__rsub__', '__rtruediv__', '__rxor__', '__setattr__', '__sizeof__', '__str__', '__sub__', '__subclasshook__', '__truediv__', '__trunc__', '__xor__', 'bit_length', 'conjugate', 'denominator', 'from_bytes', 'imag', 'numerator', 'real', 'to_bytes']
@@ -31,18 +31,20 @@ If you find this useful, please consider <a href="https://paypal.me/sauvikbiswas
 >>>
 </pre></code></div>
 
-<p>How about our <code>vector</code>-class implementation?</p>
-<div class="code-block"><pre><code>>>> dir(vector)
-['__abs__', '__add__', '__and__', '__ceil__', '__class__', '__complex__', '__delattr__', '__dict__', '__dir__', '__divmod__', '__doc__', '__eq__', '__float__', '__floor__', '__floordiv__', '__format__', '__ge__', '__getattribute__', '__getitem__', '__gt__', '__hash__', '__iadd__', '__iand__', '__ifloordiv__', '__ilshift__', '__imatmul__', '__imod__', '__imul__', '__index__', '__init__', '__init_subclass__', '__int__', '__invert__', '__ior__', '__ipow__', '__irshift__', '__isub__', '__itruediv__', '__ixor__', '__le__', '__lshift__', '__lt__', '__matmul__', '__mod__', '__module__', '__mul__', '__ne__', '__neg__', '__new__', '__or__', '__pos__', '__pow__', '__radd__', '__rand__', '__rdivmod__', '__reduce__', '__reduce_ex__', '__repr__', '__rfloordiv__', '__rlshift__', '__rmatmul__', '__rmod__', '__rmul__', '__ror__', '__round__', '__rpow__', '__rrshift__', '__rshift__', '__rsub__', '__rtruediv__', '__rxor__', '__setattr__', '__setitem__', '__sizeof__', '__str__', '__sub__', '__subclasshook__', '__truediv__', '__trunc__', '__weakref__', '__xor__']
+<p>These attributes perform various operations or store specific data. Many of these attributes would be handy when we will try to implement our own data model at a later stage.</p>
+<p>How about <code>math</code> module?</p>
+<div class="code-block"><pre><code>>>> import math
+>>> dir(math)
+['__doc__', '__loader__', '__name__', '__package__', '__spec__', 'acos', 'acosh', 'asin', 'asinh', 'atan', 'atan2', 'atanh', 'ceil', 'copysign', 'cos', 'cosh', 'degrees', 'e', 'erf', 'erfc', 'exp', 'expm1', 'fabs', 'factorial', 'floor', 'fmod', 'frexp', 'fsum', 'gamma', 'gcd', 'hypot', 'inf', 'isclose', 'isfinite', 'isinf', 'isnan', 'ldexp', 'lgamma', 'log', 'log10', 'log1p', 'log2', 'modf', 'nan', 'pi', 'pow', 'radians', 'sin', 'sinh', 'sqrt', 'tan', 'tanh', 'tau', 'trunc']
 </pre></code></div>
 
-<p>The stuff in the above output seems familiar. Most of these are the methods we have implemented (or <code>NotImplemented</code>). There are a few that we do not recognise as of now.</p>
+<p>The stuff in the above output are methods in the module.</p>
 <p>How about the function <code>dir</code> itself?</p>
 <div class="code-block"><pre><code>>>> dir(dir)
 ['__call__', '__class__', '__delattr__', '__dir__', '__doc__', '__eq__', '__format__', '__ge__', '__getattribute__', '__gt__', '__hash__', '__init__', '__init_subclass__', '__le__', '__lt__', '__module__', '__name__', '__ne__', '__new__', '__qualname__', '__reduce__', '__reduce_ex__', '__repr__', '__self__', '__setattr__', '__sizeof__', '__str__', '__subclasshook__', '__text_signature__']
 </pre></code></div>
 
-<p>In essence, the entity <code>dir</code> is no different than <code>an_int</code>, <code>a_string</code> or <code>vector</code>. They all contain different things but structurally they are treated like each other&mdash;they are all objects.</p>
+<p>In essence, the entity <code>dir</code> is no different than <code>an_int</code>, <code>a_string</code> or <code>math</code>. They all contain different things but structurally they are treated like each other&mdash;they are all objects.</p>
 <h2>Lambda&mdash;the anonymous, single-line functions</h2>
 <p>Just like most functional programming languages, Python gives us the tools to define anonymous functions using the <code>lambda</code> keyword. The syntax is like this&mdash;</p>
 <p><code>lambda arg1, arg2, arg3,&hellip; : &lt;return expression&gt;</code></p>
@@ -155,7 +157,7 @@ NameError: name 'math' is not defined
 <p>The output of <code>is_odd</code> is not <code>True</code> of <code>False</code>. What Python does is force the most trivial predicate function on the output&mdash;the <code>bool</code> function. In this case, is_odd will either return a <code>0</code> or <code>1</code>. <code>bool(0)</code> and <code>bool(1)</code> yields <code>False</code> and <code>True</code> respectively. This is exactly what is used to filter.</p>
 <p>The <code>reduce</code> function is an example of a "fold" function that we might find in Lisp or Haskell. In Python 2 it is a built-in function. Sadly, it's status as a built-in has been downgraded in Python 3 by none other than Guido van Rossum&mdash;the creator of Python&mdash;himself. You can read about it <a href="https://www.artima.com/weblogs/viewpost.jsp?thread=98196">here</a>. In order to call <code>reduce</code> in Python 3 we must import it from a library called <code>functools</code>.</p>
 <p>\(reduce(f, [x_1, x_2, x_3,&hellip;])\), where \([x_1, x_2, x_3,&hellip;]\) is an iterator (not necessarily a list), and \(f=f(p,q)\) is a function that takes two arguments of similar type and returns one object of the same type, is equivalent to \(f(&hellip;f(f(f(x_1, x_2),x_3),&hellip;)\)</p>
-<p>We can actually use it to calculate the magnitude of an n-dimensional vector that is defined by a <code>list</code>, or a <code>tuple</code> (or our very own <code>vector</code> although it only supports three-dimensional ones).</p>
+<p>We can actually use it to calculate the magnitude of an n-dimensional vector that is defined by a <code>list</code>, or a <code>tuple</code> (or our very own <code>vector</code> at a later stage although it will only supports three-dimensional ones).</p>
 <div class="code-block"><pre><code>>>> from functools import reduce
 >>> import math
 
@@ -218,7 +220,7 @@ NameError: name 'math' is not defined
 </pre></code></div>
 
 <p>What would be interesting would be to do a mixed sort&mdash;sort the quantities in descending order and then sort the names in ascending order amongst themselves. In order to do that, we will have to sort in stages.</p>
-<div class="code-block"><pre><code>k_n = lambda x: x[0]
+<div class="code-block"><pre><code>>>> k_n = lambda x: x[0]
 >>> l1 = sorted(inventory, key=k_n)
 >>> print(l1)
 [('apple', 3), ('banana', 2), ('orange', 3), ('pear', 5), ('pineapple', 2)]

@@ -1,6 +1,6 @@
 $ post_id : how-to
-$ post_title : 00: How the code blocks have been laid out
-$ post_group : 99: Unsorted chapters
+$ post_title : 01: How the code blocks have been laid out
+$ post_group : 00: Front matter
 $ post_last_update: 2019-06-12
 
 This is a code in a file--

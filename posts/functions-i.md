@@ -1,11 +1,11 @@
 $ post_id : functions-i
-$ post_title : 02: Functions--I. The anonymous ones
-$ post_group : 99: Unsorted chapters
+$ post_title : 01: The anonymous ones and some usages
+$ post_group : 01: Functions
 $ post_last_update: 2019-06-18
 
 ## Functions as first-class objects
 
-There is a built-in function, `dir`, that return what attributes--methods and variables--are present in an object. Let us try it out on an integer and a string.
+There is a built-in function, `dir`, that return what methods and variables are present in an object. These methods and variables are known as *attributes*. Let us try it out on an integer and a string.
 
 ```
 >>> an_int=5
@@ -18,14 +18,17 @@ There is a built-in function, `dir`, that return what attributes--methods and va
 >>>
 ```
 
-How about our `vector`-class implementation?
+These attributes perform various operations or store specific data. Many of these attributes would be handy when we will try to implement our own data model at a later stage.
+
+How about `math` module?
 
 ```
->>> dir(vector)
-['__abs__', '__add__', '__and__', '__ceil__', '__class__', '__complex__', '__delattr__', '__dict__', '__dir__', '__divmod__', '__doc__', '__eq__', '__float__', '__floor__', '__floordiv__', '__format__', '__ge__', '__getattribute__', '__getitem__', '__gt__', '__hash__', '__iadd__', '__iand__', '__ifloordiv__', '__ilshift__', '__imatmul__', '__imod__', '__imul__', '__index__', '__init__', '__init_subclass__', '__int__', '__invert__', '__ior__', '__ipow__', '__irshift__', '__isub__', '__itruediv__', '__ixor__', '__le__', '__lshift__', '__lt__', '__matmul__', '__mod__', '__module__', '__mul__', '__ne__', '__neg__', '__new__', '__or__', '__pos__', '__pow__', '__radd__', '__rand__', '__rdivmod__', '__reduce__', '__reduce_ex__', '__repr__', '__rfloordiv__', '__rlshift__', '__rmatmul__', '__rmod__', '__rmul__', '__ror__', '__round__', '__rpow__', '__rrshift__', '__rshift__', '__rsub__', '__rtruediv__', '__rxor__', '__setattr__', '__setitem__', '__sizeof__', '__str__', '__sub__', '__subclasshook__', '__truediv__', '__trunc__', '__weakref__', '__xor__']
+>>> import math
+>>> dir(math)
+['__doc__', '__loader__', '__name__', '__package__', '__spec__', 'acos', 'acosh', 'asin', 'asinh', 'atan', 'atan2', 'atanh', 'ceil', 'copysign', 'cos', 'cosh', 'degrees', 'e', 'erf', 'erfc', 'exp', 'expm1', 'fabs', 'factorial', 'floor', 'fmod', 'frexp', 'fsum', 'gamma', 'gcd', 'hypot', 'inf', 'isclose', 'isfinite', 'isinf', 'isnan', 'ldexp', 'lgamma', 'log', 'log10', 'log1p', 'log2', 'modf', 'nan', 'pi', 'pow', 'radians', 'sin', 'sinh', 'sqrt', 'tan', 'tanh', 'tau', 'trunc']
 ```
 
-The stuff in the above output seems familiar. Most of these are the methods we have implemented (or `NotImplemented`). There are a few that we do not recognise as of now.
+The stuff in the above output are methods in the module.
 
 How about the function `dir` itself?
 
@@ -34,7 +37,7 @@ How about the function `dir` itself?
 ['__call__', '__class__', '__delattr__', '__dir__', '__doc__', '__eq__', '__format__', '__ge__', '__getattribute__', '__gt__', '__hash__', '__init__', '__init_subclass__', '__le__', '__lt__', '__module__', '__name__', '__ne__', '__new__', '__qualname__', '__reduce__', '__reduce_ex__', '__repr__', '__self__', '__setattr__', '__sizeof__', '__str__', '__subclasshook__', '__text_signature__']
 ```
 
-In essence, the entity `dir` is no different than `an_int`, `a_string` or `vector`. They all contain different things but structurally they are treated like each other--they are all objects.
+In essence, the entity `dir` is no different than `an_int`, `a_string` or `math`. They all contain different things but structurally they are treated like each other--they are all objects.
 
 ## Lambda--the anonymous, single-line functions
 
@@ -188,7 +191,7 @@ The `reduce` function is an example of a "fold" function that we might find in L
 
 \\(reduce(f, [x_1, x_2, x_3,...])\\), where \\([x_1, x_2, x_3,...]\\) is an iterator (not necessarily a list), and \\(f=f(p,q)\\) is a function that takes two arguments of similar type and returns one object of the same type, is equivalent to \\(f(...f(f(f(x_1, x_2),x_3),...)\\)
 
-We can actually use it to calculate the magnitude of an n-dimensional vector that is defined by a `list`, or a `tuple` (or our very own `vector` although it only supports three-dimensional ones).
+We can actually use it to calculate the magnitude of an n-dimensional vector that is defined by a `list`, or a `tuple` (or our very own `vector` at a later stage although it will only supports three-dimensional ones).
 
 ```
 >>> from functools import reduce
@@ -273,7 +276,7 @@ A reverse sort is also trivial.
 What would be interesting would be to do a mixed sort--sort the quantities in descending order and then sort the names in ascending order amongst themselves. In order to do that, we will have to sort in stages.
 
 ```
-k_n = lambda x: x[0]
+>>> k_n = lambda x: x[0]
 >>> l1 = sorted(inventory, key=k_n)
 >>> print(l1)
 [('apple', 3), ('banana', 2), ('orange', 3), ('pear', 5), ('pineapple', 2)]
