@@ -1,0 +1,101 @@
+<html>
+<head>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<link href="stylesheet.css" rel="stylesheet">
+<title>Anatomy of the Snake : 03: Generator functions</title>
+<script type="text/javascript" async
+  src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/MathJax.js?config=TeX-MML-AM_CHTML" async>
+</script>
+</head>
+<body>
+<a style="text-decoration: none; color: inherit;" href="index.html">
+<div class="super-header">Anatomy of the Snake</div>
+<div class="super-sub-header">A not-so-beginner course in Python
+  <img style="display:inline; padding: 5px 5px 20px 5px;" height="50px" src="python-logo.png"/>
+</div>
+</a>
+<div class="donate-header">
+If you find this useful, please consider <a href="https://paypal.me/sauvikbiswas" target="_blank">donating</a>. More information can be found in the <a href="about.html">about page</a>.
+</div>
+<div class="header">03: Generator functions</div>
+<div class="content">
+<h2>Persistence of a function</h2>
+<p>Before we get to generator functions, we must understand a critical concept&mdash;the persistence of a function.</p>
+<p>The execution of a function with all its attributes and local bindings stays in the memory only for as long as it is needed. The moment it encounters a <code>return</code>, the control is passed back to wherever the call had originated from. At this point, the execution instance and its bindings are of no use and are taken care by the interpreter's garbage collector. The declaration and definition of the function is still available for a subsequent call; which when encountered will spawn another instance of an execution with its attributes and new local bindings.</p>
+<p>Let us test this out with a program that tries to compute \(\pi\) using <a href="https://en.wikipedia.org/wiki/Leibniz_formula_for_%CF%80">Madhava-Leibniz series</a> up to an accuracy of n entries and compares it to the value of \(math.pi\).</p>
+<p>$${\displaystyle 1\,-\,{\frac {1}{3}}\,+\,{\frac {1}{5}}\,-\,{\frac {1}{7}}\,+\,{\frac {1}{9}}\,-\,\cdots \,=\,{\frac {\pi }{4}}.}$$</p>
+<div class="file-code"><pre><code>import math
+def ml_pi(n):
+    sum = 0.0
+    for i in range(n):
+        sum = sum + pow(-1.0,i)/(2*i+1)
+    sum = sum*4.0
+    return sum, (math.pi-sum)
+</pre></code></div>
+
+<p>The return statement appears to return two objects. This is not the case. Python actually returns one object&mdash;a tuple with two items.</p>
+<div class="code-block"><pre><code>>>> res = ml_pi(1)
+>>> print(res)
+(4.0, -0.8584073464102069)
+
+>>> res = ml_pi(10)
+>>> print(res)
+(3.0418396189294032, 0.09975303466038987)
+
+>>> res = ml_pi(100)
+>>> print(res)
+(3.1315929035585537, 0.00999975003123943)
+</pre></code></div>
+
+<p>With more and more terms, we seems to get closer to the actual value of \(\pi\). However, the result is not our focus here. When <code>res = ml_pi(1)</code> is called, the interpreter binds the local variable <code>n</code> to the value <code>1</code>, creates all other attributes necessary and proceeds to execute the code. Once the code returns the result and the difference, the entire instance of the function execution is lost. The statement, <code>res = ml_pi(10)</code>, spawns a new instance of the function execution with the binding <code>n=10</code>.</p>
+<p>A function is persistent in the memory for as long as its needed.</p>
+<p>The following function performs the same task but uses recursion. The recursive form uses an inductive reasoning, \(\pi_{ml}(n)=f(\pi_{ml}(n-1))\) and uses the tail case, \(\displaystyle \frac {\pi_{ml}(1)} {4}=1\)</p>
+<div class="file-code"><pre><code>import math
+def ml_pi_rec(n):
+    if n==1:
+        return 4.0, math.pi-4.0
+    sum_n_minus_1, _ = ml_pi_rec(n-1)
+    sum = 4.0*(sum_n_minus_1/4.0 + pow(-1.0,n-1)/(2*(n-1)+1))
+    return sum, (math.pi-sum)
+</pre></code></div>
+
+<p>In Python, the <code>_</code> is often used to capture a value that is not required at all. In <code>sum_n_minus_1, _ = ml_pi_rec(n-1)</code>, we are not interested in the deviation of the value for the series computed till <code>n-1</code> terms. So instead of writing something like <code>sum_n_minus_1, diff_n_minus_1 = ml_pi_rec(n-1)</code> and never using <code>diff_n_minus_1</code> later, we have used the <code>_</code>.</p>
+<p>The results are identical to the <code>ml_pi</code> function and are not our objects of focus. What is interesting is the persistence of various instances of execution and binding while tracing a call. To keep our analysis simple, let us analyse a call that asks Python to compute \(\pi\) to only three terms. Let's say that we have called <code>res = ml_pi_rec(3)</code> from the Python REPL shell.</p>
+<ol>
+<li><code>ml_pi_rec(3)</code> is called by Python shell with the binding <code>n=3</code></li>
+<li>The code hits <code>sum_n_minus_1, _ = ml_pi_rec(n-1)</code> and spawns a new instance of the function <code>ml_pi_rec(2)</code> with the binding <code>n=2</code>. <code>ml_pi_rec(3)</code> is still persistent in memory as execution is not complete.</li>
+<li><code>ml_pi_rec(2)</code> again hits <code>sum_n_minus_1, _ = ml_pi_rec(n-1)</code> and spawns a new instance of the function <code>ml_pi_rec(1)</code> with the binding <code>n=1</code>. Both <code>ml_pi_rec(3)</code> and <code>ml_pi_rec(2)</code> are persistent in memory as neither of their execution is complete.</li>
+<li><code>ml_pi_rec(1)</code> executes <code>return 4.0, math.pi-4.0</code> and sends the value to <code>ml_pi_rec(2)</code>. This instance of <code>ml_pi_rec(1)</code>'s purpose is over and is no more accessible.</li>
+<li><code>ml_pi_rec(2)</code> assigns the first value of the return it has received from <code>ml_pi_rec(1)</code> to <code>ml_pi_rec(2)</code>'s own attribute <code>sum_n_minus_1</code>. It then proceeds with the execution and finally executes <code>return sum, (math.pi-sum)</code>. This instance of <code>ml_pi_rec(2)</code>'s purpose is over and is no more accessible.</li>
+<li><code>ml_pi_rec(3)</code> assigns the first value of the return it has received from <code>ml_pi_rec(2)</code> to <code>ml_pi_rec(3)</code>'s own attribute <code>sum_n_minus_1</code> and proceeds with the execution. Once it executes <code>return sum, (math.pi-sum)</code>, it returns the values to the Python shell. This instance of <code>ml_pi_rec(3)</code> becomes inaccessible.</li>
+</ol>
+</div>
+<div class="donate-footer">
+If you found this useful, please consider <a href="https://paypal.me/sauvikbiswas" target="_blank">donating</a>. More information can be found in the <a href="about.html">about page</a>.
+</div>
+<div class="copyright">
+  &copy;2019, <a href="https://sauvikbiswas.com" target="_blank">Sauvik Biswas</a>. All rights reserved. Last updated: 2019-06-22
+</div>
+<p><a href="index.html">Table of contents</a></p>
+<div id="disqus_thread"></div>
+<script>
+
+/**
+*  RECOMMENDED CONFIGURATION VARIABLES: EDIT AND UNCOMMENT THE SECTION BELOW TO INSERT DYNAMIC VALUES FROM YOUR PLATFORM OR CMS.
+*  LEARN WHY DEFINING THESE VARIABLES IS IMPORTANT: https://disqus.com/admin/universalcode/#configuration-variables*/
+/*
+var disqus_config = function () {
+this.page.url = https://sauvikbiswas.com/AOTS/functions-iii.html;  // Replace PAGE_URL with your page's canonical URL variable
+this.page.identifier = functions-iii; // Replace PAGE_IDENTIFIER with your page's unique identifier variable
+};
+*/
+(function() { // DON'T EDIT BELOW THIS LINE
+var d = document, s = d.createElement('script');
+s.src = 'https://aots.disqus.com/embed.js';
+s.setAttribute('data-timestamp', +new Date());
+(d.head || d.body).appendChild(s);
+})();
+</script>
+<noscript>Please enable JavaScript to view the <a href="https://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+</body>
+</html>
