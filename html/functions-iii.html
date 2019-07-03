@@ -2,7 +2,7 @@
 <head>
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <link href="stylesheet.css" rel="stylesheet">
-<title>Anatomy of the Snake : 03: Generator functions</title>
+<title>Anatomy of the Snake : 03: Persistence and Closure</title>
 <script type="text/javascript" async
   src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/MathJax.js?config=TeX-MML-AM_CHTML" async>
 </script>
@@ -17,12 +17,11 @@
 <div class="donate-header">
 If you find this useful, please consider <a href="https://paypal.me/sauvikbiswas" target="_blank">donating</a>. More information can be found in the <a href="about.html">about page</a>.
 </div>
-<div class="header">03: Generator functions</div>
+<div class="header">03: Persistence and Closure</div>
 <div class="content">
 <h2>Persistence of a function</h2>
-<p>Before we get to generator functions, we must understand a critical concept&mdash;the persistence of a function.</p>
 <p>The execution of a function with all its attributes and local bindings stays in the memory only for as long as it is needed. The moment it encounters a <code>return</code>, the control is passed back to wherever the call had originated from. At this point, the execution instance and its bindings are of no use and are taken care by the interpreter's garbage collector. The declaration and definition of the function is still available for a subsequent call; which when encountered will spawn another instance of an execution with its attributes and new local bindings.</p>
-<p>Let us test this out with a program that tries to compute \(\pi\) using <a href="https://en.wikipedia.org/wiki/Leibniz_formula_for_%CF%80">Madhava-Leibniz series</a> up to an accuracy of n entries and compares it to the value of \(math.pi\).</p>
+<p>Let us test this out with a program that tries to compute \(\pi\) using <a href="https://en.wikipedia.org/wiki/Leibniz_formula_for_%CF%80">Madhava-Leibniz series</a> up to an accuracy of n entries and compares it to the value of <code>math.pi</code>.</p>
 <p>$${\displaystyle 1\,-\,{\frac {1}{3}}\,+\,{\frac {1}{5}}\,-\,{\frac {1}{7}}\,+\,{\frac {1}{9}}\,-\,\cdots \,=\,{\frac {\pi }{4}}.}$$</p>
 <div class="file-code"><pre><code>import math
 def ml_pi(n):
@@ -69,6 +68,9 @@ def ml_pi_rec(n):
 <li><code>ml_pi_rec(2)</code> assigns the first value of the return it has received from <code>ml_pi_rec(1)</code> to <code>ml_pi_rec(2)</code>'s own attribute <code>sum_n_minus_1</code>. It then proceeds with the execution and finally executes <code>return sum, (math.pi-sum)</code>. This instance of <code>ml_pi_rec(2)</code>'s purpose is over and is no more accessible.</li>
 <li><code>ml_pi_rec(3)</code> assigns the first value of the return it has received from <code>ml_pi_rec(2)</code> to <code>ml_pi_rec(3)</code>'s own attribute <code>sum_n_minus_1</code> and proceeds with the execution. Once it executes <code>return sum, (math.pi-sum)</code>, it returns the values to the Python shell. This instance of <code>ml_pi_rec(3)</code> becomes inaccessible.</li>
 </ol>
+<p>We now understand that the execution instance of a function is persistent as long as it doesn't encounter a <code>return</code> statement. The astute reader may come up with a clever question&mdash;what if there is no return statement in a function declaration at all. Python takes care of that and adds a <code>return None</code> to the end of a declaration if the declaration doesn't end with <code>return</code> statement.</p>
+<h2>Closures</h2>
+<p>In Python, there is persistence of another kind. It's called closure. In order to understand this, we'll have to run through an example.</p>
 </div>
 <div class="donate-footer">
 If you found this useful, please consider <a href="https://paypal.me/sauvikbiswas" target="_blank">donating</a>. More information can be found in the <a href="about.html">about page</a>.

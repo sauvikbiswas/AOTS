@@ -1,15 +1,13 @@
 $ post_id : functions-iii
-$ post_title : 03: Generator functions
+$ post_title : 03: Persistence and Closure
 $ post_group : 01: Functions
 $ post_last_update: 2019-06-22
 
 ## Persistence of a function
 
-Before we get to generator functions, we must understand a critical concept--the persistence of a function.
-
 The execution of a function with all its attributes and local bindings stays in the memory only for as long as it is needed. The moment it encounters a `return`, the control is passed back to wherever the call had originated from. At this point, the execution instance and its bindings are of no use and are taken care by the interpreter's garbage collector. The declaration and definition of the function is still available for a subsequent call; which when encountered will spawn another instance of an execution with its attributes and new local bindings.
 
-Let us test this out with a program that tries to compute \\(\pi\\) using [Madhava-Leibniz series](https://en.wikipedia.org/wiki/Leibniz_formula_for_%CF%80) up to an accuracy of n entries and compares it to the value of \\(math.pi\\).
+Let us test this out with a program that tries to compute \\(\pi\\) using [Madhava-Leibniz series](https://en.wikipedia.org/wiki/Leibniz_formula_for_%CF%80) up to an accuracy of n entries and compares it to the value of `math.pi`.
 
 $${\displaystyle 1\,-\,{\frac {1}{3}}\,+\,{\frac {1}{5}}\,-\,{\frac {1}{7}}\,+\,{\frac {1}{9}}\,-\,\cdots \,=\,{\frac {\pi }{4}}.}$$
 
@@ -65,3 +63,60 @@ The results are identical to the `ml_pi` function and are not our objects of foc
 4. `ml_pi_rec(1)` executes `return 4.0, math.pi-4.0` and sends the value to `ml_pi_rec(2)`. This instance of `ml_pi_rec(1)`'s purpose is over and is no more accessible.
 5. `ml_pi_rec(2)` assigns the first value of the return it has received from `ml_pi_rec(1)` to `ml_pi_rec(2)`'s own attribute `sum_n_minus_1`. It then proceeds with the execution and finally executes `return sum, (math.pi-sum)`. This instance of `ml_pi_rec(2)`'s purpose is over and is no more accessible.
 6. `ml_pi_rec(3)` assigns the first value of the return it has received from `ml_pi_rec(2)` to `ml_pi_rec(3)`'s own attribute `sum_n_minus_1` and proceeds with the execution. Once it executes `return sum, (math.pi-sum)`, it returns the values to the Python shell. This instance of `ml_pi_rec(3)` becomes inaccessible.
+
+We now understand that the execution instance of a function is persistent as long as it doesn't encounter a `return` statement. The astute reader may come up with a clever question--what if there is no return statement in a function declaration at all. Python takes care of that and adds a `return None` to the end of a declaration if the declaration doesn't end with `return` statement.
+
+## Closures
+
+In Python, there is persistence of another kind. It's called closure. In order to understand this, we'll have to run through an example.
+
+~~~~
+import time
+import math
+def timed_ml_pi(n):
+  time_start = time.time()
+  def ml_pi():
+      sum = 0.0
+      for i in range(n):
+          sum = sum + pow(-1.0,i)/(2*i+1)
+      sum = sum*4.0
+      time_delta = time.time()-time_start
+      return sum, (math.pi-sum), time_delta
+  print("Closure variables: n=%d, time_start=%f"%(n, time_start))
+  return ml_pi
+~~~~
+
+It is important to notice a few things. Firstly, there is a nested function. In our case, `ml_pi` is nested inside `timed_ml_pi`. Secondly, the return value of our outer function is actually the inner function. And thirdly, the inner function uses two values that are defined outside its scope but are accessible--`n` and `time_start`.
+
+Let us try to run this.
+
+```
+>>> pi_x=timed_ml_pi(3)
+Closure variables: n=3, time_start=1562167077.854889
+>>> pi_x()
+(3.466666666666667, -0.32507401307687367, 13.790881156921387)
+>>> pi_x()
+(3.466666666666667, -0.32507401307687367, 114.324436902999878)
+>>> pi_x()
+(3.466666666666667, -0.32507401307687367, 497.8665351867676)
+```
+
+`pi_x` is a function that can be called at will. What is interesting is that the time_delta reported keeps increasing as we call it again and again. This is because the value of `time_start` was fixed when `pi_x=timed_ml_pi(3)` was executed (as was the value of `n`). Every time the function `pi_x` is called, it executes an instance of the function. We have seen that it requires the bound values of two variables `n` and `time_start` in order for the instance to be executed. However, these are the properties of a different function altogether--`timed_ml_pi`! The instance of this function doesn't exist.
+
+In order to mitigate this issue, Python stores both of these objects--known as closures--inside `py_x` in an attribute `__closure__` as tuples.
+
+```
+>>> pi_x.__closure__
+(<cell at 0x7f50d4f238b8: int object at 0xa67b00>, <cell at 0x7f50d4f23828: float object at 0x7f50d88c3e40>)
+```
+
+The values aren't very apparent unless we dig further into it. It's not hard to guess which holds which. (Just look at the types.) We can actually take each of the cell objects and see what's inside.
+
+```
+>>> pi_x.__closure__[0].cell_contents
+3
+>>> pi_x.__closure__[1].cell_contents
+1562167077.8548887
+```
+
+Thus closures are persistence of non-local attributes in a function when there is no instance of their original scope in memory.

@@ -2,7 +2,7 @@
 <head>
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <link href="stylesheet.css" rel="stylesheet">
-<title>Anatomy of the Snake : 02: Unsorted to-do list</title>
+<title>Anatomy of the Snake : '(post_title)</title>
 <script type="text/javascript" async
   src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/MathJax.js?config=TeX-MML-AM_CHTML" async>
 </script>
@@ -17,22 +17,20 @@
 <div class="donate-header">
 If you find this useful, please consider <a href="https://paypal.me/sauvikbiswas" target="_blank">donating</a>. More information can be found in the <a href="about.html">about page</a>.
 </div>
-<div class="header">02: Unsorted to-do list</div>
+<div class="header">'(post_title)</div>
 <div class="content">
-<ul>
-<li>Closures</li>
-<li>Generator functions&mdash;pipelines and co-routine.</li>
-<li>List and generator comprehension.</li>
-<li>Classes from scratch using type.</li>
-<li>Inheritance and MRO computation.</li>
-<li>Rewrite the vector class implementation as intro to data type.</li>
-</ul>
+<p>substitutionMap = {
+    '&mdash;': '&mdash;',
+    '&hellip;': '&hellip;',
+    '<p><code>': '<div class="code-block"><pre><code>',
+    '</code></p>': '</code></pre></div>'
+}</p>
 </div>
 <div class="donate-footer">
 If you found this useful, please consider <a href="https://paypal.me/sauvikbiswas" target="_blank">donating</a>. More information can be found in the <a href="about.html">about page</a>.
 </div>
 <div class="copyright">
-  &copy;2019, <a href="https://sauvikbiswas.com" target="_blank">Sauvik Biswas</a>. All rights reserved. Last updated: 2019-06-18
+  &copy;2019, <a href="https://sauvikbiswas.com" target="_blank">Sauvik Biswas</a>. All rights reserved. Last updated: '(post_last_update)
 </div>
 <p><a href="index.html">Table of contents</a></p>
 <div id="disqus_thread"></div>
@@ -43,8 +41,8 @@ If you found this useful, please consider <a href="https://paypal.me/sauvikbiswa
 *  LEARN WHY DEFINING THESE VARIABLES IS IMPORTANT: https://disqus.com/admin/universalcode/#configuration-variables*/
 /*
 var disqus_config = function () {
-this.page.url = https://sauvikbiswas.com/AOTS/to-do.html;  // Replace PAGE_URL with your page's canonical URL variable
-this.page.identifier = to-do; // Replace PAGE_IDENTIFIER with your page's unique identifier variable
+this.page.url = https://sauvikbiswas.com/AOTS/'(post_id).html;  // Replace PAGE_URL with your page's canonical URL variable
+this.page.identifier = '(post_id); // Replace PAGE_IDENTIFIER with your page's unique identifier variable
 };
 */
 (function() { // DON'T EDIT BELOW THIS LINE
