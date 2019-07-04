@@ -105,6 +105,41 @@ def count_word(source):
 
 <p>The <code>next</code> call propagates itself down the nested generators and pulls up the data while each generator (in this case, <code>count_word</code>) processes the data (in this case, counts words) and passes it on.</p>
 <p>This is very similar to building Unix pipelines.</p>
+<p>Let us say that we have a very large Python file called <code>vectors.py</code>. It contains a lot of functions. In Unix (or Unix-like systems) it is very easy to count the number of such functions. Here's one way to do it&mdash;</p>
+<div class="code-block"><pre><code>$ cat vectors.py | grep "^\s\+def " | wc -l
+64
+</pre></code></div>
+
+<p>The contents of the file&mdash;line by line&mdash;is the output to <code>cat vectors.py</code>; which is fed as input to <code>grep "^\s\+def "</code> to filter those lines which match our RegEx; which in turn is fed into <code>wc -l</code> to count the number of lines.  Piping of output as input to a command is a fundamental concept of Unix. These pipelines are very similar to those built by generators, where the output of a generator is passed to the next. Let us try to emulate this behaviour.</p>
+<div class="file-code"><pre><code>import re
+def cat(filename):
+    with open(filename, 'rU') as fp:
+        while True:
+          line = fp.readline()
+          if not line:
+              break
+          else:
+              yield line
+
+def grep(regexp, str_in):
+    for line in str_in:
+        match = re.findall(regexp, line)
+        if match:
+            yield match
+
+def wc_l(str_in):
+    return len(list(str_in))
+</pre></code></div>
+
+<p>The above method is a very convoluted and incomplete method of creating a proxy for the <code>cat</code> and <code>grep</code> command in Python. It's only for illustrative purposes.</p>
+<p>We can chain these functions to create a pipe.</p>
+<div class="code-block"><pre><code>>>> wc_l(grep("^\s+def ", cat("vectors.py")))
+64
+</pre></code></div>
+
+<p>The function <code>wc_l</code> is not a generator and has a <code>return</code> instead of <code>yield</code>. This is to consolidate the data from the generators. In fact, we are forcing <code>wc_l</code> to evaluate all the yields of the input generator by converting it into a list. The other two functions are effectively piped before <code>wc_l</code> just like the Unix command.</p>
+<p>For the Python <code>cat</code> function, the generator stops when line returns an empty string. For the Python <code>grep</code> function, the generator pulls from <code>str_in</code> only if <code>match</code> is not an empty list and stops when <code>str_in</code> is exhausted.</p>
+<p>One can build useful applications using this concept. Parsing large text files (like logs) and processing incoming data streams would be some of the more interesting usages of this concept.</p>
 </div>
 <div class="donate-footer">
 If you found this useful, please consider <a href="https://paypal.me/sauvikbiswas" target="_blank">donating</a>. More information can be found in the <a href="about.html">about page</a>.

@@ -71,6 +71,47 @@ def ml_pi_rec(n):
 <p>We now understand that the execution instance of a function is persistent as long as it doesn't encounter a <code>return</code> statement. The astute reader may come up with a clever question&mdash;what if there is no return statement in a function declaration at all. Python takes care of that and adds a <code>return None</code> to the end of a declaration if the declaration doesn't end with <code>return</code> statement.</p>
 <h2>Closures</h2>
 <p>In Python, there is persistence of another kind. It's called closure. In order to understand this, we'll have to run through an example.</p>
+<div class="file-code"><pre><code>import time
+import math
+def timed_ml_pi(n):
+  time_start = time.time()
+  def ml_pi():
+      sum = 0.0
+      for i in range(n):
+          sum = sum + pow(-1.0,i)/(2*i+1)
+      sum = sum*4.0
+      time_delta = time.time()-time_start
+      return sum, (math.pi-sum), time_delta
+  print("Closure variables: n=%d, time_start=%f"%(n, time_start))
+  return ml_pi
+</pre></code></div>
+
+<p>It is important to notice a few things. Firstly, there is a nested function. In our case, <code>ml_pi</code> is nested inside <code>timed_ml_pi</code>. Secondly, the return value of our outer function is actually the inner function. And thirdly, the inner function uses two values that are defined outside its scope but are accessible inside its scope&mdash;<code>n</code> and <code>time_start</code>.</p>
+<p>Let us try to run this.</p>
+<div class="code-block"><pre><code>>>> pi_x=timed_ml_pi(3)
+Closure variables: n=3, time_start=1562167077.854889
+>>> pi_x()
+(3.466666666666667, -0.32507401307687367, 13.790881156921387)
+>>> pi_x()
+(3.466666666666667, -0.32507401307687367, 114.324436902999878)
+>>> pi_x()
+(3.466666666666667, -0.32507401307687367, 497.8665351867676)
+</pre></code></div>
+
+<p><code>pi_x</code> is a function that can be called at will. What is interesting is that the time_delta reported keeps increasing as we call it again and again. This is because the value of <code>time_start</code> was fixed when <code>pi_x=timed_ml_pi(3)</code> was executed (as was the value of <code>n</code>). Every time the function <code>pi_x</code> is called, it executes an instance of the function. We have seen that it requires the bound values of two variables <code>n</code> and <code>time_start</code> in order for the instance to be executed. However, these are the properties of a different function altogether&mdash;<code>timed_ml_pi</code>! The instance of this function call doesn't exist. One might be tempted to think that <code>pi_x</code> is an instance of <code>timed_ml_pi(3)</code> but in reality, <code>timed_ml_pi(3)</code> has already been evaluated and the result is stored in <code>pi_x</code>. The result in this case is an instance of the function <code>ml_pi</code>. It's an instance of the function and not the evaluation.</p>
+<p>In order to mitigate this issue, Python stores both of these objects&mdash;known as closures&mdash;inside <code>py_x</code> in an attribute <code>__closure__</code> as tuples.</p>
+<div class="code-block"><pre><code>>>> pi_x.__closure__
+(&lt;cell at 0x7f50d4f238b8: int object at 0xa67b00&gt;, &lt;cell at 0x7f50d4f23828: float object at 0x7f50d88c3e40&gt)
+</pre></code></div>
+
+<p>The values aren't very apparent unless we dig further into it. It's not hard to guess which holds which. (Just look at the types.) We can actually take each of the cell objects and see what's inside.</p>
+<div class="code-block"><pre><code>>>> pi_x.__closure__[0].cell_contents
+3
+>>> pi_x.__closure__[1].cell_contents
+1562167077.8548887
+</pre></code></div>
+
+<p>Closures are the non-local attributes persistent in a function when there are no instances of their original scope&mdash;a parent function&mdash;in memory.</p>
 </div>
 <div class="donate-footer">
 If you found this useful, please consider <a href="https://paypal.me/sauvikbiswas" target="_blank">donating</a>. More information can be found in the <a href="about.html">about page</a>.

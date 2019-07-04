@@ -86,7 +86,7 @@ def timed_ml_pi(n):
   return ml_pi
 ~~~~
 
-It is important to notice a few things. Firstly, there is a nested function. In our case, `ml_pi` is nested inside `timed_ml_pi`. Secondly, the return value of our outer function is actually the inner function. And thirdly, the inner function uses two values that are defined outside its scope but are accessible--`n` and `time_start`.
+It is important to notice a few things. Firstly, there is a nested function. In our case, `ml_pi` is nested inside `timed_ml_pi`. Secondly, the return value of our outer function is actually the inner function. And thirdly, the inner function uses two values that are defined outside its scope but are accessible inside its scope--`n` and `time_start`.
 
 Let us try to run this.
 
@@ -101,13 +101,13 @@ Closure variables: n=3, time_start=1562167077.854889
 (3.466666666666667, -0.32507401307687367, 497.8665351867676)
 ```
 
-`pi_x` is a function that can be called at will. What is interesting is that the time_delta reported keeps increasing as we call it again and again. This is because the value of `time_start` was fixed when `pi_x=timed_ml_pi(3)` was executed (as was the value of `n`). Every time the function `pi_x` is called, it executes an instance of the function. We have seen that it requires the bound values of two variables `n` and `time_start` in order for the instance to be executed. However, these are the properties of a different function altogether--`timed_ml_pi`! The instance of this function doesn't exist.
+`pi_x` is a function that can be called at will. What is interesting is that the time_delta reported keeps increasing as we call it again and again. This is because the value of `time_start` was fixed when `pi_x=timed_ml_pi(3)` was executed (as was the value of `n`). Every time the function `pi_x` is called, it executes an instance of the function. We have seen that it requires the bound values of two variables `n` and `time_start` in order for the instance to be executed. However, these are the properties of a different function altogether--`timed_ml_pi`! The instance of this function call doesn't exist. One might be tempted to think that `pi_x` is an instance of `timed_ml_pi(3)` but in reality, `timed_ml_pi(3)` has already been evaluated and the result is stored in `pi_x`. The result in this case is an instance of the function `ml_pi`. It's an instance of the function and not the evaluation.
 
 In order to mitigate this issue, Python stores both of these objects--known as closures--inside `py_x` in an attribute `__closure__` as tuples.
 
 ```
 >>> pi_x.__closure__
-(<cell at 0x7f50d4f238b8: int object at 0xa67b00>, <cell at 0x7f50d4f23828: float object at 0x7f50d88c3e40>)
+(&lt;cell at 0x7f50d4f238b8: int object at 0xa67b00&gt;, &lt;cell at 0x7f50d4f23828: float object at 0x7f50d88c3e40&gt)
 ```
 
 The values aren't very apparent unless we dig further into it. It's not hard to guess which holds which. (Just look at the types.) We can actually take each of the cell objects and see what's inside.
@@ -119,4 +119,4 @@ The values aren't very apparent unless we dig further into it. It's not hard to 
 1562167077.8548887
 ```
 
-Thus closures are persistence of non-local attributes in a function when there is no instance of their original scope in memory.
+Closures are the non-local attributes persistent in a function when there are no instances of their original scope--a parent function--in memory.

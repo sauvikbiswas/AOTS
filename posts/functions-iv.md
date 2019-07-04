@@ -107,3 +107,48 @@ We can now chain generators to create a master generator.
 The `next` call propagates itself down the nested generators and pulls up the data while each generator (in this case, `count_word`) processes the data (in this case, counts words) and passes it on.
 
 This is very similar to building Unix pipelines.
+
+Let us say that we have a very large Python file called `vectors.py`. It contains a lot of functions. In Unix (or Unix-like systems) it is very easy to count the number of such functions. Here's one way to do it--
+
+```
+$ cat vectors.py | grep "^\s\+def " | wc -l
+64
+```
+
+The contents of the file--line by line--is the output to `cat vectors.py`; which is fed as input to `grep "^\s\+def "` to filter those lines which match our RegEx; which in turn is fed into `wc -l` to count the number of lines.  Piping of output as input to a command is a fundamental concept of Unix. These pipelines are very similar to those built by generators, where the output of a generator is passed to the next. Let us try to emulate this behaviour.
+
+~~~~
+import re
+def cat(filename):
+    with open(filename, 'rU') as fp:
+        while True:
+          line = fp.readline()
+          if not line:
+              break
+          else:
+              yield line
+
+def grep(regexp, str_in):
+    for line in str_in:
+        match = re.findall(regexp, line)
+        if match:
+            yield match
+
+def wc_l(str_in):
+    return len(list(str_in))
+~~~~
+
+The above method is a very convoluted and incomplete method of creating a proxy for the `cat` and `grep` command in Python. It's only for illustrative purposes.
+
+We can chain these functions to create a pipe.
+
+```
+>>> wc_l(grep("^\s+def ", cat("vectors.py")))
+64
+```
+
+The function `wc_l` is not a generator and has a `return` instead of `yield`. This is to consolidate the data from the generators. In fact, we are forcing `wc_l` to evaluate all the yields of the input generator by converting it into a list. The other two functions are effectively piped before `wc_l` just like the Unix command.
+
+For the Python `cat` function, the generator stops when line returns an empty string. For the Python `grep` function, the generator pulls from `str_in` only if `match` is not an empty list and stops when `str_in` is exhausted.
+
+One can build useful applications using this concept. Parsing large text files (like logs) and processing incoming data streams would be some of the more interesting usages of this concept.
