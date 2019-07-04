@@ -121,14 +121,14 @@ def cat(filename):
           else:
               yield line
 
-def grep(regexp, str_in):
-    for line in str_in:
+def grep(regexp, str_gen_in):
+    for line in str_gen_in:
         match = re.findall(regexp, line)
         if match:
             yield match
 
-def wc_l(str_in):
-    return len(list(str_in))
+def wc_l(str_gen_in):
+    return len(list(str_gen_in))
 </pre></code></div>
 
 <p>The above method is a very convoluted and incomplete method of creating a proxy for the <code>cat</code> and <code>grep</code> command in Python. It's only for illustrative purposes.</p>
@@ -137,8 +137,8 @@ def wc_l(str_in):
 64
 </pre></code></div>
 
-<p>The function <code>wc_l</code> is not a generator and has a <code>return</code> instead of <code>yield</code>. This is to consolidate the data from the generators. In fact, we are forcing <code>wc_l</code> to evaluate all the yields of the input generator by converting it into a list. The other two functions are effectively piped before <code>wc_l</code> just like the Unix command.</p>
-<p>For the Python <code>cat</code> function, the generator stops when line returns an empty string. For the Python <code>grep</code> function, the generator pulls from <code>str_in</code> only if <code>match</code> is not an empty list and stops when <code>str_in</code> is exhausted.</p>
+<p>The function <code>wc_l</code> is not a generator and has a <code>return</code> instead of <code>yield</code>. This is to consolidate the data from the generators. In fact, we are forcing <code>wc_l</code> to evaluate all the yields of the input generator by converting it into a list. The other two functions are effectively piped before <code>wc_l</code> just like the Unix command we saw earlier.</p>
+<p>For the Python <code>cat</code> function, the generator stops when line returns an empty string. For the Python <code>grep</code> function, the generator pulls from <code>str_gen_in</code> only if <code>match</code> is not an empty list and stops when <code>str_gen_in</code> is exhausted.</p>
 <p>One can build useful applications using this concept. Parsing large text files (like logs) and processing incoming data streams would be some of the more interesting usages of this concept.</p>
 </div>
 <div class="donate-footer">

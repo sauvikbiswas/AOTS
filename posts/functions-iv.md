@@ -128,14 +128,14 @@ def cat(filename):
           else:
               yield line
 
-def grep(regexp, str_in):
-    for line in str_in:
+def grep(regexp, str_gen_in):
+    for line in str_gen_in:
         match = re.findall(regexp, line)
         if match:
             yield match
 
-def wc_l(str_in):
-    return len(list(str_in))
+def wc_l(str_gen_in):
+    return len(list(str_gen_in))
 ~~~~
 
 The above method is a very convoluted and incomplete method of creating a proxy for the `cat` and `grep` command in Python. It's only for illustrative purposes.
@@ -147,8 +147,8 @@ We can chain these functions to create a pipe.
 64
 ```
 
-The function `wc_l` is not a generator and has a `return` instead of `yield`. This is to consolidate the data from the generators. In fact, we are forcing `wc_l` to evaluate all the yields of the input generator by converting it into a list. The other two functions are effectively piped before `wc_l` just like the Unix command.
+The function `wc_l` is not a generator and has a `return` instead of `yield`. This is to consolidate the data from the generators. In fact, we are forcing `wc_l` to evaluate all the yields of the input generator by converting it into a list. The other two functions are effectively piped before `wc_l` just like the Unix command we saw earlier.
 
-For the Python `cat` function, the generator stops when line returns an empty string. For the Python `grep` function, the generator pulls from `str_in` only if `match` is not an empty list and stops when `str_in` is exhausted.
+For the Python `cat` function, the generator stops when line returns an empty string. For the Python `grep` function, the generator pulls from `str_gen_in` only if `match` is not an empty list and stops when `str_gen_in` is exhausted.
 
 One can build useful applications using this concept. Parsing large text files (like logs) and processing incoming data streams would be some of the more interesting usages of this concept.
